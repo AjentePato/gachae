@@ -1,0 +1,2946 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Gacha Waifu - Com Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: #0b0e1a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #f0f0f0;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image:
+                radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(2px 2px at 50px 160px, #ddd, transparent),
+                radial-gradient(2px 2px at 90px 40px, rgba(255,255,255,0.6), transparent),
+                radial-gradient(2px 2px at 130px 80px, #fff, transparent),
+                radial-gradient(2px 2px at 160px 30px, rgba(255,255,255,0.7), transparent);
+            background-size: 200px 200px;
+            background-repeat: repeat;
+            opacity: 0.3;
+            z-index: 0;
+            animation: twinkle 4s ease-in-out infinite alternate;
+        }
+        @keyframes twinkle { 0% { opacity: 0.2; } 100% { opacity: 0.5; } }
+
+        .container {
+            max-width: 850px;
+            width: 100%;
+            background: rgba(18, 22, 40, 0.88);
+            backdrop-filter: blur(12px);
+            border-radius: 50px;
+            padding: 30px 25px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.9), 0 0 0 2px rgba(255,215,0,0.15);
+            border: 1px solid rgba(255,215,0,0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .title-section { text-align: center; margin-bottom: 18px; cursor: default; }
+        .title-section h1 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.6rem;
+            background: linear-gradient(135deg, #f7e05e, #f0a500, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px rgba(255,215,0,0.3);
+            letter-spacing: 3px;
+            display: inline-block;
+            position: relative;
+            user-select: none;
+            transition: transform 0.2s;
+        }
+        .title-section h1:active { transform: scale(0.95); }
+        .title-section h1::after {
+            content: '✨';
+            position: absolute;
+            right: -40px;
+            top: -10px;
+            font-size: 2rem;
+            -webkit-text-fill-color: initial;
+            animation: spin 4s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .title-section .subtitle {
+            font-size: 0.9rem;
+            color: #aab;
+            letter-spacing: 4px;
+            margin-top: -4px;
+            font-weight: 600;
+        }
+
+        .gem-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.5);
+            border-radius: 60px;
+            padding: 10px 22px;
+            margin-bottom: 22px;
+            border: 1px solid rgba(255,255,255,0.06);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .gem-count { display: flex; align-items: center; gap: 12px; font-size: 1.8rem; font-weight: 700; }
+        .gem-icon { font-size: 2.2rem; filter: drop-shadow(0 0 12px #00e5ff); animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        .gem-value { color: #00e5ff; text-shadow: 0 0 25px rgba(0,229,255,0.6); }
+        .gem-rate { font-size: 0.95rem; color: #ccd; background: rgba(0,0,0,0.3); padding: 6px 18px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.05); }
+        .gem-rate span { color: #ffd966; font-weight: bold; }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 22px;
+            border-bottom: 2px solid rgba(255,255,255,0.05);
+            padding-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: #8a8fa8;
+            font-size: 1.1rem;
+            font-weight: 700;
+            padding: 8px 22px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: 'Quicksand', sans-serif;
+        }
+        .tab-btn.active { background: rgba(255,215,0,0.15); color: #f7e05e; box-shadow: 0 0 25px rgba(255,215,0,0.1); }
+        .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.06); color: #d0d4e8; transform: translateY(-2px); }
+        .tab-content { display: none; animation: fadeSlide 0.4s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeSlide { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+        .dice-area { display: flex; flex-direction: column; align-items: center; margin: 6px 0 16px; }
+        .dice-container { perspective: 800px; width: 130px; height: 130px; margin: 0 auto 20px; cursor: pointer; }
+        .dice {
+            width: 100%; height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.34, 1.2, 0.64, 1);
+            border-radius: 24px;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.7);
+        }
+        .dice.rolling { animation: diceRoll 1.2s ease-out forwards; }
+        @keyframes diceRoll {
+            0% { transform: rotateX(0) rotateY(0) rotateZ(0) scale(1); }
+            25% { transform: rotateX(720deg) rotateY(360deg) rotateZ(180deg) scale(1.2); }
+            50% { transform: rotateX(1440deg) rotateY(720deg) rotateZ(360deg) scale(0.9); }
+            75% { transform: rotateX(2160deg) rotateY(1080deg) rotateZ(540deg) scale(1.1); }
+            100% { transform: rotateX(2520deg) rotateY(1260deg) rotateZ(720deg) scale(1); }
+        }
+        .dice-face {
+            position: absolute;
+            width: 130px; height: 130px;
+            border-radius: 24px;
+            background: linear-gradient(145deg, #232a50, #141a30);
+            border: 2px solid #4a5070;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 4rem; font-weight: bold;
+            color: #f0e68c;
+            text-shadow: 0 0 20px rgba(255,215,0,0.4);
+            backface-visibility: hidden;
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.5);
+        }
+        .dice-face:nth-child(1) { transform: rotateY(0deg) translateZ(65px); }
+        .dice-face:nth-child(2) { transform: rotateY(180deg) translateZ(65px); }
+        .dice-face:nth-child(3) { transform: rotateY(-90deg) translateZ(65px); }
+        .dice-face:nth-child(4) { transform: rotateY(90deg) translateZ(65px); }
+        .dice-face:nth-child(5) { transform: rotateX(90deg) translateZ(65px); }
+        .dice-face:nth-child(6) { transform: rotateX(-90deg) translateZ(65px); }
+
+        .roll-btn {
+            background: linear-gradient(145deg, #f7c948, #f0a500);
+            border: none;
+            color: #1a1f2f;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.5rem;
+            padding: 16px 48px;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 8px 0 #a76f00, 0 12px 35px rgba(255,215,0,0.3);
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+        .roll-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .roll-btn:hover:not(:disabled)::before { opacity: 1; }
+        .roll-btn:hover:not(:disabled) { transform: translateY(-4px); box-shadow: 0 10px 0 #a76f00, 0 18px 45px rgba(255,215,0,0.5); }
+        .roll-btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 4px 0 #a76f00; }
+        .roll-btn:disabled { opacity: 0.5; transform: translateY(4px); box-shadow: 0 4px 0 #a76f00; cursor: not-allowed; }
+        .roll-btn .cost { background: rgba(0,0,0,0.25); padding: 4px 16px; border-radius: 30px; font-size: 1rem; color: #2d2d2d; }
+
+        .card-display {
+            margin: 16px 0 20px;
+            min-height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0,0,0,0.2);
+            border-radius: 30px;
+            padding: 16px;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .card {
+            background: linear-gradient(145deg, #1e2340, #10152a);
+            border-radius: 28px;
+            padding: 16px;
+            text-align: center;
+            min-width: 200px;
+            max-width: 340px;
+            width: 100%;
+            border: 2px solid #4a5070;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            transition: all 0.4s cubic-bezier(0.34,1.2,0.64,1);
+            position: relative;
+            overflow: hidden;
+            animation: cardPop 0.5s ease forwards;
+        }
+        @keyframes cardPop { 0% { transform: scale(0.7) rotate(-2deg); opacity: 0; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+        .card .card-image {
+            width: 100%;
+            height: auto;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            background: #10152a;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: opacity 0.3s ease;
+            display: block;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .card .card-image.loading { opacity: 0.3; }
+        .card .rarity-tag {
+            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 4px 20px;
+            border-radius: 30px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 6px;
+        }
+        .card .char-name { font-family: 'Fredoka One', cursive; font-size: 1.6rem; margin: 2px 0 4px; color: #f0f0f0; }
+        .card .char-rarity { font-size: 0.9rem; opacity: 0.8; }
+        .card-placeholder { color: #6a7088; font-size: 1.1rem; letter-spacing: 1px; opacity: 0.6; }
+
+        .rarity-F { border-color: #8a8fa8; }
+        .rarity-F .rarity-tag { background: #5a5f7a; color: #d0d3e0; }
+        .rarity-F .char-name { color: #c8cce0; }
+        .rarity-E { border-color: #6ab04c; }
+        .rarity-E .rarity-tag { background: #2d7d2d; color: #b8e0b0; }
+        .rarity-E .char-name { color: #8bc34a; }
+        .rarity-D { border-color: #4a9eff; }
+        .rarity-D .rarity-tag { background: #1a6bb0; color: #b0d4ff; }
+        .rarity-D .char-name { color: #4a9eff; }
+        .rarity-C { border-color: #3d7ed9; }
+        .rarity-C .rarity-tag { background: #1a4f8a; color: #8ab8ff; }
+        .rarity-C .char-name { color: #5a9eff; }
+        .rarity-B { border-color: #9b59b6; }
+        .rarity-B .rarity-tag { background: #6c3483; color: #d7bde2; }
+        .rarity-B .char-name { color: #af7ac5; }
+        .rarity-A { border-color: #e67e22; }
+        .rarity-A .rarity-tag { background: #b85e0a; color: #f0c27a; }
+        .rarity-A .char-name { color: #f39c12; }
+        .rarity-S { border-color: #f1c40f; box-shadow: 0 0 40px rgba(241,196,15,0.3); }
+        .rarity-S .rarity-tag { background: #b7950b; color: #f7dc6f; }
+        .rarity-S .char-name { color: #f1c40f; text-shadow: 0 0 20px rgba(241,196,15,0.4); }
+        .rarity-SS { border-color: #e74c3c; box-shadow: 0 0 50px rgba(231,76,60,0.4); }
+        .rarity-SS .rarity-tag { background: #922b21; color: #f5b7b1; }
+        .rarity-SS .char-name { color: #e74c3c; text-shadow: 0 0 30px rgba(231,76,60,0.5); }
+        .rarity-SSS { border-color: #ff6b6b; box-shadow: 0 0 80px rgba(255,107,107,0.6); animation: legendaryGlow 2s ease-in-out infinite alternate; }
+        .rarity-SSS .rarity-tag { background: #c0392b; color: #fadbd8; }
+        .rarity-SSS .char-name { color: #ff6b6b; text-shadow: 0 0 40px rgba(255,107,107,0.6); }
+        @keyframes legendaryGlow { 0% { box-shadow: 0 0 40px rgba(255,107,107,0.3); } 100% { box-shadow: 0 0 80px rgba(255,107,107,0.8); } }
+        .rarity-SECRET { border-color: #00ffcc; animation: secretGlow 1.6s ease-in-out infinite alternate; }
+        .rarity-SECRET .rarity-tag { background: linear-gradient(90deg,#00ffcc,#ff00ff); color: #0b0e1a; }
+        .rarity-SECRET .char-name { color: #00ffcc; text-shadow: 0 0 40px rgba(0,255,204,0.8); }
+        @keyframes secretGlow { 0% { box-shadow: 0 0 50px rgba(0,255,204,0.35); } 100% { box-shadow: 0 0 100px rgba(255,0,255,0.6); } }
+
+        .history {
+            margin-top: 20px;
+            background: rgba(0,0,0,0.25);
+            border-radius: 20px;
+            padding: 14px;
+            max-height: 180px;
+            overflow-y: auto;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .history::-webkit-scrollbar { width: 6px; }
+        .history::-webkit-scrollbar-track { background: transparent; }
+        .history::-webkit-scrollbar-thumb { background: #4a5070; border-radius: 10px; }
+        .history-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #8a8fa8;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .history-title .clear-btn {
+            background: none;
+            border: 1px solid #4a5070;
+            color: #8a8fa8;
+            padding: 2px 14px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .history-title .clear-btn:hover { background: #4a5070; color: #f0f0f0; }
+        .history-list { display: flex; flex-direction: column; gap: 6px; }
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.02);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            border-left: 4px solid #4a5070;
+        }
+        .history-item .h-emoji { font-size: 1.4rem; }
+        .history-item .h-name { flex: 1; font-weight: 600; }
+        .history-item .h-rarity { font-size: 0.7rem; text-transform: uppercase; opacity: 0.6; }
+        .history-empty { color: #5a5f7a; text-align: center; font-style: italic; padding: 12px 0; }
+
+        .inventory-grid, .collection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 14px;
+            margin-top: 12px;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+        .inventory-grid::-webkit-scrollbar, .collection-grid::-webkit-scrollbar { width: 6px; }
+        .inventory-grid::-webkit-scrollbar-track, .collection-grid::-webkit-scrollbar-track { background: transparent; }
+        .inventory-grid::-webkit-scrollbar-thumb, .collection-grid::-webkit-scrollbar-thumb { background: #4a5070; border-radius: 10px; }
+
+        .inv-item, .col-item {
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 14px 8px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: all 0.25s;
+            backdrop-filter: blur(4px);
+        }
+        .inv-item:hover { border-color: rgba(255,215,0,0.3); transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
+        .inv-item .inv-image { width: 100%; height: auto; max-height: 120px; object-fit: contain; border-radius: 12px; background: #10152a; margin-bottom: 6px; }
+        .inv-item .inv-emoji { font-size: 3rem; display: block; }
+        .inv-item .inv-name { font-weight: 700; font-size: 1rem; margin: 4px 0 2px; }
+        .inv-item .inv-rarity { font-size: 0.7rem; text-transform: uppercase; opacity: 0.6; }
+        .inv-item .inv-qty { background: rgba(255,255,255,0.08); border-radius: 20px; padding: 2px 14px; font-size: 0.8rem; display: inline-block; margin-top: 4px; }
+        .inv-item .sell-btn {
+            background: #d9534f;
+            border: none;
+            color: white;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: 0.2s;
+            width: 100%;
+        }
+        .inv-item .sell-btn:hover:not(:disabled) { background: #c9302c; transform: scale(1.03); }
+        .inv-item .sell-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* ===== BOTÃO TROCAR FOTO ===== */
+        .inv-item .img-btn {
+            background: rgba(58,113,246,0.9);
+            border: none;
+            color: #fff;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            margin-top: 6px;
+            width: 100%;
+            transition: 0.2s;
+        }
+        .inv-item .img-btn:hover { background: #2d5bd7; transform: scale(1.03); }
+        #imagePickerName {
+            font-family: 'Fredoka One', cursive;
+            color: #f7e05e;
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+        }
+        .url-row { display: flex; gap: 8px; margin-top: 14px; }
+        .url-row .auth-input { margin-bottom: 0; flex: 1; }
+        .url-row button {
+            background: linear-gradient(145deg,#7b2fbe,#9b59b6);
+            border: none; color: #fff; font-weight: 700;
+            padding: 10px 18px; border-radius: 40px; cursor: pointer;
+            box-shadow: 0 4px 0 #4a1f6b; font-family: 'Quicksand', sans-serif;
+        }
+        .url-row button:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #4a1f6b; }
+
+        .col-item .col-image { width: 100%; height: auto; max-height: 100px; object-fit: contain; border-radius: 12px; background: #10152a; margin-bottom: 6px; }
+        .col-item .col-emoji { font-size: 2.6rem; display: block; }
+        .col-item .col-name { font-weight: 700; font-size: 0.95rem; }
+        .col-item .col-rarity { font-size: 0.7rem; opacity: 0.6; text-transform: uppercase; }
+        .col-item .col-owned { font-size: 0.8rem; background: rgba(255,255,255,0.06); border-radius: 30px; padding: 2px 12px; display: inline-block; margin-top: 4px; }
+        .col-item .col-owned.zero { opacity: 0.3; }
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #c8cce0;
+        }
+        .section-title span { font-size: 0.9rem; font-weight: normal; color: #8a8fa8; }
+        .bulk-sell-btn {
+            background: #d9534f;
+            border: none;
+            color: white;
+            font-weight: 700;
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .bulk-sell-btn:hover:not(:disabled) { background: #c9302c; transform: scale(1.03); }
+        .bulk-sell-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .empty-msg { color: #5a5f7a; text-align: center; padding: 30px 0; font-style: italic; grid-column: 1 / -1; }
+
+        .progress-section {
+            margin: 16px 0 8px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 30px;
+            padding: 12px 18px;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .progress-header { display: flex; justify-content: space-between; font-size: 0.9rem; color: #aab; margin-bottom: 6px; }
+        .progress-bar { width: 100%; height: 10px; background: rgba(255,255,255,0.08); border-radius: 30px; overflow: hidden; position: relative; }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #f7e05e, #f0a500, #ff6b6b);
+            border-radius: 30px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 20px rgba(255,215,0,0.3);
+        }
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.85);
+            color: #fff;
+            padding: 14px 28px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            z-index: 9999;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,215,0,0.3);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+            animation: toastIn 0.4s ease, toastOut 0.4s ease 2.5s forwards;
+            pointer-events: none;
+        }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-30px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+        @keyframes toastOut { from { opacity: 1; transform: translateX(-50%) translateY(0); } to { opacity: 0; transform: translateX(-50%) translateY(-30px); } }
+
+        .custom-section {
+            margin-top: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 18px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .custom-section h3 {
+            font-family: 'Fredoka One', cursive;
+            color: #f7e05e;
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .custom-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+        .custom-form input, .custom-form select {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 40px;
+            padding: 10px 18px;
+            color: #f0f0f0;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1rem;
+            flex: 1 1 150px;
+            min-width: 120px;
+            outline: none;
+            transition: border 0.2s;
+        }
+        .custom-form input:focus, .custom-form select:focus {
+            border-color: #f7e05e;
+        }
+        .custom-form button {
+            background: linear-gradient(145deg, #7b2fbe, #9b59b6);
+            border: none;
+            color: white;
+            font-weight: 700;
+            padding: 10px 28px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1rem;
+            transition: all 0.2s;
+            box-shadow: 0 4px 0 #4a1f6b;
+        }
+        .custom-form button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 0 #4a1f6b;
+        }
+        .custom-form button:disabled {
+            opacity: 0.5;
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #4a1f6b;
+            cursor: not-allowed;
+        }
+        .custom-result {
+            margin-top: 14px;
+            display: none;
+        }
+        .custom-result.show { display: block; }
+        .custom-result .card {
+            max-width: 320px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .alternatives-btn {
+            background: rgba(255,215,0,0.2);
+            border: 1px solid #f7e05e;
+            color: #f7e05e;
+            padding: 6px 14px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: 0.2s;
+            display: inline-block;
+        }
+        .alternatives-btn:hover {
+            background: rgba(255,215,0,0.3);
+            transform: scale(1.03);
+        }
+        .alternatives-list {
+            margin-top: 10px;
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.5);
+            border-radius: 16px;
+            padding: 8px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .alternatives-list.show { display: flex; }
+        .alt-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            background: rgba(255,255,255,0.03);
+        }
+        .alt-item:hover {
+            background: rgba(255,215,0,0.15);
+        }
+        .alt-item img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #10152a;
+        }
+        .alt-item span {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* ===== LOGIN / AUTH ===== */
+        .auth-container, .profile-setup {
+            max-width: 480px;
+            width: 100%;
+            background: rgba(18, 22, 40, 0.95);
+            backdrop-filter: blur(12px);
+            border-radius: 30px;
+            padding: 40px 30px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.9);
+            border: 1px solid rgba(255,215,0,0.2);
+            position: relative;
+            z-index: 1;
+        }
+        .auth-title, .profile-setup h2 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2rem;
+            background: linear-gradient(135deg, #f7e05e, #f0a500, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .auth-subtitle, .setup-sub {
+            text-align: center;
+            color: #aab;
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+            letter-spacing: 2px;
+        }
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 2px solid rgba(255,255,255,0.08);
+        }
+        .auth-tab {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #8a8fa8;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 12px;
+            cursor: pointer;
+            transition: 0.25s;
+            font-family: 'Quicksand', sans-serif;
+        }
+        .auth-tab.active {
+            color: #f7e05e;
+            border-bottom: 2px solid #f7e05e;
+            margin-bottom: -2px;
+        }
+        .auth-form { display: none; }
+        .auth-form.active { display: block; }
+        .auth-input {
+            width: 100%;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 40px;
+            padding: 14px 22px;
+            color: #f0f0f0;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1rem;
+            margin-bottom: 14px;
+            outline: none;
+            transition: border 0.2s;
+        }
+        .auth-input:focus { border-color: #f7e05e; }
+        .auth-btn {
+            width: 100%;
+            background: linear-gradient(145deg, #f7c948, #f0a500);
+            border: none;
+            color: #1a1f2f;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.1rem;
+            padding: 14px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 0 #a76f00;
+            margin-bottom: 10px;
+        }
+        .auth-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #a76f00;
+        }
+        .auth-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .auth-link {
+            display: block;
+            text-align: center;
+            color: #f7e05e;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-top: 10px;
+            text-decoration: none;
+        }
+        .auth-link:hover { text-decoration: underline; }
+        .auth-msg {
+            margin-top: 14px;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .auth-msg.success { background: rgba(46,204,113,0.15); color: #2ecc71; border: 1px solid rgba(46,204,113,0.3); display: block; }
+        .auth-msg.error { background: rgba(231,76,60,0.15); color: #e74c3c; border: 1px solid rgba(231,76,60,0.3); display: block; }
+
+        .guest-btn {
+            width: 100%;
+            background: transparent;
+            border: 2px solid rgba(255,215,0,0.3);
+            color: #f7e05e;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1rem;
+            padding: 12px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 14px;
+        }
+        .guest-btn:hover {
+            background: rgba(255,215,0,0.08);
+            border-color: rgba(255,215,0,0.6);
+            transform: translateY(-2px);
+        }
+
+        /* ===== USER PANEL ===== */
+        .user-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.4);
+            border-radius: 40px;
+            padding: 8px 8px 8px 12px;
+            margin-bottom: 18px;
+            border: 1px solid rgba(255,255,255,0.06);
+            gap: 10px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #ccd;
+            flex: 1;
+            min-width: 0;
+        }
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255,215,0,0.4);
+            background: #10152a;
+            flex-shrink: 0;
+        }
+        .user-avatar-placeholder {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f7c948, #f0a500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: #1a1f2f;
+            font-weight: bold;
+            flex-shrink: 0;
+            border: 2px solid rgba(255,215,0,0.4);
+        }
+        .user-text {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+        .user-nick {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.1rem;
+            color: #f7e05e;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .user-email-small {
+            font-size: 0.75rem;
+            color: #8a8fa8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .user-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .profile-btn {
+            background: rgba(247,224,94,0.15);
+            border: 1px solid rgba(247,224,94,0.3);
+            color: #f7e05e;
+            padding: 8px 14px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .profile-btn:hover {
+            background: rgba(247,224,94,0.25);
+            transform: scale(1.03);
+        }
+        .logout-btn {
+            background: rgba(231,76,60,0.2);
+            border: 1px solid #e74c3c;
+            color: #e74c3c;
+            padding: 8px 14px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .logout-btn:hover {
+            background: rgba(231,76,60,0.3);
+            transform: scale(1.03);
+        }
+        .reset-btn {
+            background: rgba(255,140,0,0.2);
+            border: 1px solid #ff8c00;
+            color: #ff8c00;
+            padding: 8px 14px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .reset-btn:hover {
+            background: rgba(255,140,0,0.3);
+            transform: scale(1.03);
+        }
+
+        .save-status {
+            font-size: 0.75rem;
+            color: #6a7088;
+            text-align: center;
+            margin-top: -8px;
+            margin-bottom: 12px;
+            height: 18px;
+        }
+        .save-status.saving { color: #f7e05e; }
+        .save-status.saved { color: #2ecc71; }
+        .save-status.error { color: #e74c3c; }
+
+        .loading-screen {
+            text-align: center;
+            color: #aab;
+            padding: 40px 20px;
+        }
+        .loading-screen .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,215,0,0.2);
+            border-top-color: #f7e05e;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(6px);
+            z-index: 9998;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: rgba(18, 22, 40, 0.98);
+            border-radius: 30px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255,215,0,0.2);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.9);
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-header h3 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, #f7e05e, #f0a500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .modal-close {
+            background: rgba(255,255,255,0.08);
+            border: none;
+            color: #aab;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        .modal-close:hover { background: rgba(231,76,60,0.2); color: #e74c3c; }
+        .current-avatar-big {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255,215,0,0.4);
+            background: #10152a;
+            margin: 0 auto 10px;
+            display: block;
+        }
+        .current-avatar-placeholder-big {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f7c948, #f0a500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #1a1f2f;
+            font-weight: bold;
+            margin: 0 auto 10px;
+            border: 3px solid rgba(255,215,0,0.4);
+        }
+        .current-avatar-section { text-align: center; margin-bottom: 20px; }
+        .avatar-picker-label {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #c8cce0;
+            margin: 16px 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .avatar-picker-label .count {
+            font-size: 0.8rem;
+            color: #8a8fa8;
+            font-weight: normal;
+        }
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 10px;
+            max-height: 320px;
+            overflow-y: auto;
+            padding: 4px;
+        }
+        .avatar-option {
+            background: rgba(0,0,0,0.3);
+            border: 2px solid transparent;
+            border-radius: 14px;
+            padding: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .avatar-option:hover {
+            border-color: rgba(255,215,0,0.3);
+            transform: translateY(-2px);
+        }
+        .avatar-option.selected {
+            border-color: #f7e05e;
+            background: rgba(247,224,94,0.1);
+            box-shadow: 0 0 20px rgba(247,224,94,0.2);
+        }
+        .avatar-option img {
+            width: 100%;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 10px;
+            background: #10152a;
+            margin-bottom: 4px;
+        }
+        .avatar-option .avatar-emoji {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .avatar-option .avatar-name {
+            font-size: 0.7rem;
+            color: #ccd;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 600;
+        }
+        .avatar-option .avatar-rarity {
+            font-size: 0.6rem;
+            opacity: 0.6;
+            text-transform: uppercase;
+        }
+        .avatar-empty-msg {
+            text-align: center;
+            color: #6a7088;
+            padding: 30px 10px;
+            font-style: italic;
+            grid-column: 1 / -1;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 24px;
+        }
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 30px;
+            border: none;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .modal-btn.primary {
+            background: linear-gradient(145deg, #f7c948, #f0a500);
+            color: #1a1f2f;
+            box-shadow: 0 4px 0 #a76f00;
+        }
+        .modal-btn.primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 0 #a76f00; }
+        .modal-btn.primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .modal-btn.secondary {
+            background: rgba(255,255,255,0.08);
+            color: #ccd;
+        }
+        .modal-btn.secondary:hover { background: rgba(255,255,255,0.15); }
+
+        .confetti-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #f7e05e;
+            opacity: 0.8;
+            animation: confettiFall linear forwards;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(-10vh) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg) scale(0.3); opacity: 0; }
+        }
+
+        @media (max-width: 600px) {
+            .container, .auth-container, .profile-setup { padding: 16px 12px; }
+            .title-section h1 { font-size: 1.8rem; }
+            .title-section h1::after { display: none; }
+            .gem-count { font-size: 1.3rem; }
+            .dice-container { width: 100px; height: 100px; }
+            .dice-face { width: 100px; height: 100px; font-size: 3rem; }
+            .dice-face:nth-child(1) { transform: rotateY(0deg) translateZ(50px); }
+            .dice-face:nth-child(2) { transform: rotateY(180deg) translateZ(50px); }
+            .dice-face:nth-child(3) { transform: rotateY(-90deg) translateZ(50px); }
+            .dice-face:nth-child(4) { transform: rotateY(90deg) translateZ(50px); }
+            .dice-face:nth-child(5) { transform: rotateX(90deg) translateZ(50px); }
+            .dice-face:nth-child(6) { transform: rotateX(-90deg) translateZ(50px); }
+            .roll-btn { font-size: 1.1rem; padding: 12px 28px; }
+            .card { padding: 12px; }
+            .card .char-name { font-size: 1.2rem; }
+            .inventory-grid, .collection-grid, .avatar-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+            .tab-btn { font-size: 0.9rem; padding: 6px 14px; }
+            .section-title { flex-direction: column; align-items: stretch; }
+            .custom-form { flex-direction: column; }
+            .custom-form input, .custom-form select, .custom-form button { width: 100%; }
+            .user-panel { flex-direction: column; text-align: center; padding: 12px; }
+            .user-info { flex-direction: column; width: 100%; }
+            .user-text { align-items: center; }
+            .user-actions { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TELA DE LOGIN -->
+    <div id="authScreen" class="auth-container">
+        <h1 class="auth-title">⚔️ Gacha Waifu</h1>
+        <p class="auth-subtitle">Entre para salvar sua coleção</p>
+
+        <div class="auth-tabs">
+            <button class="auth-tab active" id="tabLogin">Login</button>
+            <button class="auth-tab" id="tabCad">Cadastrar</button>
+        </div>
+
+        <div id="formLogin" class="auth-form active">
+            <input type="email" class="auth-input" id="loginEmail" placeholder="Email" autocomplete="email">
+            <input type="password" class="auth-input" id="loginSenha" placeholder="Senha" autocomplete="current-password">
+            <button class="auth-btn" id="btnLogin">Entrar com Email</button>
+            <a class="auth-link" id="linkRecuperar">Esqueceu a senha?</a>
+        </div>
+
+        <div id="formCad" class="auth-form">
+            <input type="email" class="auth-input" id="cadEmail" placeholder="Email" autocomplete="email">
+            <input type="password" class="auth-input" id="cadSenha" placeholder="Senha (mínimo 6 caracteres)" autocomplete="new-password">
+            <button class="auth-btn" id="btnCad">Criar conta</button>
+        </div>
+
+        <button class="guest-btn" id="btnGuest">🎮 Jogar como Guest (sem conta)</button>
+
+        <div id="authMsg" class="auth-msg"></div>
+    </div>
+
+    <!-- TELA DE CARREGAMENTO -->
+    <div id="loadingScreen" class="container" style="display:none;">
+        <div class="loading-screen">
+            <div class="spinner"></div>
+            <p id="loadingText">Carregando...</p>
+        </div>
+    </div>
+
+    <!-- TELA DE CRIAÇÃO DE PERFIL -->
+    <div id="profileSetupScreen" class="profile-setup" style="display:none;">
+        <h2>🎭 Crie seu Perfil</h2>
+        <p class="setup-sub">Escolha um nick legal pra ser seu nome de colecionador</p>
+
+        <div class="current-avatar-section">
+            <div class="current-avatar-placeholder-big" id="setupAvatarPreview">🎭</div>
+        </div>
+
+        <input type="text" class="auth-input" id="setupNickname" placeholder="Seu nickname (3-20 caracteres)" maxlength="20" autocomplete="off">
+
+        <button class="auth-btn" id="btnCreateProfile">Criar Perfil e Começar</button>
+
+        <div id="setupMsg" class="auth-msg"></div>
+    </div>
+
+    <!-- TELA DO JOGO -->
+    <div id="gameScreen" class="container" style="display:none;">
+        <div class="title-section">
+            <h1 id="titleEasterEgg">️ Gacha Waifu</h1>
+            <div class="subtitle">✦ Colete suas waifus ✦</div>
+        </div>
+
+        <div class="user-panel">
+            <div class="user-info">
+                <div id="userAvatarContainer">
+                    <div class="user-avatar-placeholder">🎭</div>
+                </div>
+                <div class="user-text">
+                    <span class="user-nick" id="userNick">Carregando...</span>
+                    <span class="user-email-small" id="userEmail"></span>
+                </div>
+            </div>
+            <div class="user-actions">
+                <button class="profile-btn" id="editProfileBtn">️ Editar</button>
+                <button class="reset-btn" id="resetBtn">🗑️ Resetar</button>
+                <button class="logout-btn" id="logoutBtn">Sair</button>
+            </div>
+        </div>
+
+        <div class="save-status" id="saveStatus">Salvo na nuvem ✓</div>
+
+        <div class="gem-panel">
+            <div class="gem-count">
+                <span class="gem-icon">💎</span>
+                <span class="gem-value" id="gemDisplay">100</span>
+            </div>
+            <div class="gem-rate">
+                ⏳ <span id="gemRate">+1</span>/s
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="gacha">🎲 Gacha</button>
+            <button class="tab-btn" data-tab="inventory">📦 Inventário</button>
+            <button class="tab-btn" data-tab="collection">📖 Coleção</button>
+            <button class="tab-btn" data-tab="custom">✨ Personalizado</button>
+        </div>
+
+        <div id="tab-gacha" class="tab-content active">
+            <div class="dice-area">
+                <div class="dice-container">
+                    <div class="dice" id="dice">
+                        <div class="dice-face">⚀</div>
+                        <div class="dice-face">⚁</div>
+                        <div class="dice-face">⚂</div>
+                        <div class="dice-face">⚃</div>
+                        <div class="dice-face">⚄</div>
+                        <div class="dice-face">⚅</div>
+                    </div>
+                </div>
+                <button class="roll-btn" id="rollBtn">
+                    🎲 Rolar Dado
+                    <span class="cost">-10 💎</span>
+                </button>
+            </div>
+
+            <div class="card-display" id="cardDisplay">
+                <div class="card-placeholder">👆 Role o dado para começar</div>
+            </div>
+
+            <div class="history">
+                <div class="history-title">
+                    <span>📜 Últimas cartas</span>
+                    <button class="clear-btn" id="clearHistory">Limpar</button>
+                </div>
+                <div class="history-list" id="historyList">
+                    <div class="history-empty">Nenhuma carta obtida ainda.</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-inventory" class="tab-content">
+            <div class="section-title">
+                <span>🗂️ Seus Personagens <span id="invCount">(0)</span></span>
+                <button class="bulk-sell-btn" id="bulkSellBtn">Vender todos F, E, D</button>
+            </div>
+            <div class="inventory-grid" id="inventoryGrid">
+                <div class="empty-msg">Nenhum personagem no inventário.</div>
+            </div>
+        </div>
+
+        <div id="tab-collection" class="tab-content">
+            <div class="section-title">
+                📖 Coleção Completa
+                <span id="colCount">(0/0)</span>
+            </div>
+            <div class="progress-section">
+                <div class="progress-header">
+                    <span>Progresso</span>
+                    <span id="progressText">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+                </div>
+            </div>
+            <div class="collection-grid" id="collectionGrid">
+                <div class="empty-msg">Carregando coleção...</div>
+            </div>
+        </div>
+
+        <div id="tab-custom" class="tab-content">
+            <div class="custom-section">
+                <h3>✨ Criar Personagem Personalizado</h3>
+                <div class="custom-form">
+                    <input type="text" id="customName" placeholder="Nome (ex: Beatrice, ...)" />
+                    <select id="customRarity">
+                        <option value="F">F</option>
+                        <option value="E">E</option>
+                        <option value="D">D</option>
+                        <option value="C">C</option>
+                        <option value="B">B</option>
+                        <option value="A">A</option>
+                        <option value="S">S</option>
+                        <option value="SS">SS</option>
+                        <option value="SSS">SSS</option>
+                        <option value="SECRET">SECRET</option>
+                    </select>
+                    <button id="customSearchBtn">🔍 Buscar</button>
+                </div>
+                <div class="custom-result" id="customResult">
+                    <div class="card" id="customCard">
+                        <img class="card-image" id="customImage" src="" alt="Personagem" style="display:none;">
+                        <div id="customPlaceholder" style="display:flex;align-items:center;justify-content:center;height:180px;background:#10152a;border-radius:20px;color:#6a7088;margin-bottom:10px;">Nenhum resultado</div>
+                        <span class="rarity-tag" id="customRarityTag">Classe F</span>
+                        <div class="char-name" id="customNameDisplay">?</div>
+                        <div class="char-rarity" id="customRarityDisplay">⭐ F</div>
+                        <button class="alternatives-btn" id="alternativesBtn" style="display:none;">🔄 Não é este? Ver alternativas</button>
+                        <div class="alternatives-list" id="alternativesList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE EDIÇÃO DE PERFIL -->
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>✏️ Editar Perfil</h3>
+                <button class="modal-close" id="closeModal">✕</button>
+            </div>
+
+            <div class="current-avatar-section">
+                <div id="modalAvatarPreview">
+                    <div class="current-avatar-placeholder-big">🎭</div>
+                </div>
+            </div>
+
+            <input type="text" class="auth-input" id="modalNickname" placeholder="Seu nickname (3-20 caracteres)" maxlength="20">
+
+            <div class="avatar-picker-label">
+                🖼️ Escolha seu avatar
+                <span class="count" id="avatarCount">(0 personagens disponíveis)</span>
+            </div>
+            <div class="avatar-grid" id="avatarGrid">
+                <div class="avatar-empty-msg">Você ainda não tem personagens coletados!<br>Role o dado para desbloquear avatares.</div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-btn secondary" id="cancelEdit">Cancelar</button>
+                <button class="modal-btn primary" id="saveProfile">Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TROCAR IMAGEM -->
+    <div class="modal-overlay" id="imagePickerModal">
+        <div class="modal" style="max-width:480px;">
+            <div class="modal-header">
+                <h3>🖼️ Trocar Imagem</h3>
+                <button class="modal-close" id="closeImagePicker">✕</button>
+            </div>
+            <div id="imagePickerName">Personagem</div>
+            <div class="avatar-grid" id="imagePickerGrid">
+                <div class="avatar-empty-msg">⏳ Buscando alternativas...</div>
+            </div>
+            <div class="url-row">
+                <input type="text" class="auth-input" id="imagePickerUrl" placeholder="...ou cole uma URL de imagem">
+                <button id="imagePickerUseUrl">Usar</button>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" id="cancelImagePicker">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CHEAT SECRETO -->
+    <div class="modal-overlay" id="cheatModal">
+        <div class="modal" style="max-width:420px;">
+            <div class="modal-header">
+                <h3>🕵️ Área Secreta</h3>
+                <button class="modal-close" id="closeCheat">✕</button>
+            </div>
+            <p style="text-align:center;color:#aab;font-size:.85rem;margin-bottom:14px;">Digite o nome (ou parte) da personagem.<br>A próxima rolada será 100% ela. 🎯</p>
+            <input type="text" class="auth-input" id="cheatName" placeholder="ex: nino, meme, miku..." autocomplete="off">
+            <div id="cheatMsg" class="auth-msg"></div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" id="cancelCheat">Cancelar</button>
+                <button class="modal-btn primary" id="activateCheat">🎯 Garantir próxima</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // ================================================================
+        //  0. SUPABASE
+        // ================================================================
+        const SUPABASE_URL = 'https://edirfuymendmudwacxna.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_6GXfJdtNX-QD1776YJnXsw_EOLCrXye';
+
+        const { createClient } = supabase;
+        const supa = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let currentUser = null;
+        let userProfile = null;
+        let isGuest = false;
+        const GUEST_SAVE_KEY = 'gacha_waifu_guest_save';
+        let saveTimeout = null;
+        let isCreatingProfile = false;
+        let tempSelectedAvatar = null;
+
+        // ================================================================
+        //  1. CONFIGURAÇÕES
+        // ================================================================
+        const COST_PER_ROLL = 10;
+        const GEM_RATE = 1;
+        const INITIAL_GEMS = 100;
+
+        const SELL_PRICES = { 'F':2, 'E':5, 'D':10, 'C':20, 'B':40, 'A':80, 'S':150, 'SS':300, 'SSS':600, 'SECRET':1000 };
+        const RARITY_CHANCES = { 'SECRET':2, 'SSS':0.1, 'SS':0.4, 'S':1.5, 'A':5, 'B':8, 'C':11, 'D':17, 'E':24, 'F':31 };
+
+        // ================================================================
+        //  2. PERSONAGENS (ranking por fama)
+        // ================================================================
+        const characters = [
+            // ===== SECRET — AS PROIBIDAS (2% de chance) =====
+            { name: 'Miku Nakano', rarity: 'SECRET' },
+            { name: 'Nino Nakano', rarity: 'SECRET' },
+            { name: 'Yotsuba Nakano', rarity: 'SECRET' },
+            { name: 'Ichika Nakano', rarity: 'SECRET' },
+            { name: 'Itsuki Nakano', rarity: 'SECRET' },
+            { name: 'Hakari Hanazono', rarity: 'SECRET' },
+            { name: 'Karane Inda', rarity: 'SECRET' },
+            { name: 'Shizuka Yoshimoto', rarity: 'SECRET' },
+            { name: 'Nano Eiai', rarity: 'SECRET' },
+            { name: 'Kusuri Yakuzen', rarity: 'SECRET' },
+            { name: 'Hahari Hanazono', rarity: 'SECRET' },
+            { name: 'Kurumi Haraga', rarity: 'SECRET' },
+            { name: 'Mei Meido', rarity: 'SECRET' },
+            { name: 'Iku Sutō', rarity: 'SECRET' },
+            { name: 'Mimimi Utsukushisugi', rarity: 'SECRET' },
+            { name: 'Meme Kakure', rarity: 'SECRET' },
+            { name: 'Chiyo Iin', rarity: 'SECRET' },
+            { name: 'Alisa Kujou', rarity: 'SECRET' },
+            { name: 'Yuki Suou', rarity: 'SECRET' },
+            // ===== SSS — LENDAS =====
+            { name: 'Mikasa Ackerman', rarity: 'SSS' },
+            { name: 'Nezuko Kamado', rarity: 'SSS' },
+            { name: 'Rem (Re:Zero)', rarity: 'SSS' },
+            { name: 'Asuna Yuuki', rarity: 'SSS' },
+            { name: 'Rei Ayanami', rarity: 'SSS' },
+            { name: 'Asuka Langley', rarity: 'SSS' },
+            { name: 'Usagi Tsukino (Sailor Moon)', rarity: 'SSS' },
+            { name: 'Nami (One Piece)', rarity: 'SSS' },
+            { name: 'Rukia Kuchiki', rarity: 'SSS' },
+            { name: 'Lum (Urusei Yatsura)', rarity: 'SSS' },
+            { name: 'Bulma (Dragon Ball)', rarity: 'SSS' },
+            { name: 'Android 18 (Dragon Ball)', rarity: 'SSS' },
+            // ===== SS — SUPER FAMOSAS =====
+            { name: 'Zero Two (Darling)', rarity: 'SS' },
+            { name: 'Violet Evergarden', rarity: 'SS' },
+            { name: 'Emilia (Re:Zero)', rarity: 'SS' },
+            { name: 'Ram (Re:Zero)', rarity: 'SS' },
+            { name: 'Megumin (Konosuba)', rarity: 'SS' },
+            { name: 'Raphtalia (Shield Hero)', rarity: 'SS' },
+            { name: 'Kaguya Shinomiya', rarity: 'SS' },
+            { name: 'Mai Sakurajima', rarity: 'SS' },
+            { name: 'Marin Kitagawa', rarity: 'SS' },
+            { name: 'Yor Forger', rarity: 'SS' },
+            { name: 'Makima (Chainsaw Man)', rarity: 'SS' },
+            { name: 'Himiko Toga', rarity: 'SS' },
+            { name: 'Shinobu Kocho', rarity: 'SS' },
+            { name: 'Holo (Spice and Wolf)', rarity: 'SS' },
+            { name: 'C.C. (Code Geass)', rarity: 'SS' },
+            { name: 'Makise Kurisu', rarity: 'SS' },
+            { name: 'Homura Akemi', rarity: 'SS' },
+            { name: 'Madoka Kaname', rarity: 'SS' },
+            { name: 'Artoria Pendragon (Saber)', rarity: 'SS' },
+            { name: 'Nico Robin', rarity: 'SS' },
+            { name: 'Boa Hancock', rarity: 'SS' },
+            { name: 'Kanade Tachibana', rarity: 'SS' },
+            { name: 'Yukino Yukinoshita', rarity: 'SS' },
+            { name: 'Touka Kirishima', rarity: 'SS' },
+            { name: 'Yuno Gasai', rarity: 'SS' },
+            { name: 'Junko Enoshima', rarity: 'SS' },
+            { name: 'Kyoko Kirigiri', rarity: 'SS' },
+            { name: 'Jolyne Cujoh', rarity: 'SS' },
+            { name: 'Hayase Nagatoro', rarity: 'SS' },
+            { name: 'Shouko Komi', rarity: 'SS' },
+            { name: 'Frieren', rarity: 'SS' },
+            { name: 'Maomao (Apothecary Diaries)', rarity: 'SS' },
+            { name: 'Mash Kyrielight', rarity: 'SS' },
+            { name: 'Albedo (Overlord)', rarity: 'SS' },
+            { name: 'Hestia (DanMachi)', rarity: 'SS' },
+            { name: 'Haruhi Suzumiya', rarity: 'SS' },
+            { name: 'Taiga Aisaka', rarity: 'SS' },
+            { name: 'Mio Akiyama', rarity: 'SS' },
+            { name: 'Yui Hirasawa', rarity: 'SS' },
+            { name: 'Ai Hoshino', rarity: 'SS' },
+            { name: 'Kurumi Tokisaki', rarity: 'SS' },
+            { name: 'Sakura Haruno', rarity: 'SS' },
+            { name: 'Hinata Hyuga', rarity: 'SS' },
+            // ===== S — MUITO FAMOSAS =====
+            { name: 'Yuki Nagato', rarity: 'S' },
+            { name: 'Kana Arima', rarity: 'S' },
+            { name: 'Chisato Nishikigi', rarity: 'S' },
+            { name: 'Kaede Azusagawa', rarity: 'S' },
+            { name: 'Hina Amano', rarity: 'S' },
+            { name: 'Mitsuha Miyamizu', rarity: 'S' },
+            { name: 'Rin Tohsaka', rarity: 'S' },
+            { name: 'Illya (Fate)', rarity: 'S' },
+            { name: 'Jeanne d\'Arc (Fate)', rarity: 'S' },
+            { name: 'Scathach (Fate)', rarity: 'S' },
+            { name: 'Beatrice (Re:Zero)', rarity: 'S' },
+            { name: 'Echidna (Re:Zero)', rarity: 'S' },
+            { name: 'Chika Fujiwara', rarity: 'S' },
+            { name: 'Rin Shima', rarity: 'S' },
+            { name: 'Nadeshiko Kagamihara', rarity: 'S' },
+            { name: 'Konata Izumi', rarity: 'S' },
+            { name: 'Kagami Hiiragi', rarity: 'S' },
+            { name: 'Chitoge Kirisaki', rarity: 'S' },
+            { name: 'Kosaki Onodera', rarity: 'S' },
+            { name: 'Rikka Takanashi', rarity: 'S' },
+            { name: 'Mirai Kuriyama', rarity: 'S' },
+            { name: 'Eru Chitanda', rarity: 'S' },
+            { name: 'Hitori Gotoh', rarity: 'S' },
+            { name: 'Nijika Ijichi', rarity: 'S' },
+            { name: 'Ryo Yamada', rarity: 'S' },
+            { name: 'Kita Ikuyo', rarity: 'S' },
+            { name: 'Momo Yaoyorozu', rarity: 'S' },
+            { name: 'Ochaco Uraraka', rarity: 'S' },
+            { name: 'Maki Zenin', rarity: 'S' },
+            { name: 'Nobara Kugisaki', rarity: 'S' },
+            { name: 'Power (Chainsaw Man)', rarity: 'S' },
+            { name: 'Misa Amane', rarity: 'S' },
+            { name: 'Erza Scarlet', rarity: 'S' },
+            { name: 'Lucy Heartfilia', rarity: 'S' },
+            { name: 'Yumeko Jabami', rarity: 'S' },
+            { name: 'Kagome Higurashi', rarity: 'S' },
+            { name: 'Aqua (Konosuba)', rarity: 'S' },
+            { name: 'Darkness (Konosuba)', rarity: 'S' },
+            { name: 'Ais Wallenstein', rarity: 'S' },
+            { name: 'Eris Boreas Greyrat', rarity: 'S' },
+            // ===== A — FAMOSAS =====
+            { name: 'Yui Yuigahama', rarity: 'A' },
+            { name: 'Takina Inoue', rarity: 'A' },
+            { name: 'Azusa Nakano', rarity: 'A' },
+            { name: 'Tsumugi Kotobuki', rarity: 'A' },
+            { name: 'Mikuru Asahina', rarity: 'A' },
+            { name: 'Yunyun (Konosuba)', rarity: 'A' },
+            { name: 'Filo (Shield Hero)', rarity: 'A' },
+            { name: 'Sylphie (Mushoku Tensei)', rarity: 'A' },
+            { name: 'Roxy Migurdia', rarity: 'A' },
+            { name: 'Isla (Plastic Memories)', rarity: 'A' },
+            { name: 'Tsukasa Yuzaki', rarity: 'A' },
+            { name: 'Vladilena Milizé (86)', rarity: 'A' },
+            { name: 'Chii (Chobits)', rarity: 'A' },
+            { name: 'Sayaka Miki', rarity: 'A' },
+            { name: 'Kyoko Sakura', rarity: 'A' },
+            { name: 'Mami Tomoe', rarity: 'A' },
+            { name: 'Kallen Stadtfeld', rarity: 'A' },
+            { name: 'Euphemia li Britannia', rarity: 'A' },
+            { name: 'Yoko Littner', rarity: 'A' },
+            { name: 'Nia Teppelin', rarity: 'A' },
+            { name: 'Ryuko Matoi', rarity: 'A' },
+            { name: 'Satsuki Kiryuin', rarity: 'A' },
+            { name: 'Nana Osaki', rarity: 'A' },
+            { name: 'Momo Ayase', rarity: 'A' },
+            { name: 'Mina Ashiro', rarity: 'A' },
+            { name: 'Sagiri Yamada Asaemon', rarity: 'A' },
+            { name: 'Noelle Silva', rarity: 'A' },
+            { name: 'Mirajane Strauss', rarity: 'A' },
+            { name: 'Juvia Lockser', rarity: 'A' },
+            { name: 'Akame (Akame ga Kill)', rarity: 'A' },
+            { name: 'Yuri Nakamura', rarity: 'A' },
+            { name: 'Meiko Honma', rarity: 'A' },
+            { name: 'Sawako Kuronuma', rarity: 'A' },
+            { name: 'Haruhi Fujioka', rarity: 'A' },
+            { name: 'Misaki Ayuzawa', rarity: 'A' },
+            { name: 'Tohru Honda', rarity: 'A' },
+            { name: 'Neferpitou', rarity: 'A' },
+            { name: 'Revy (Black Lagoon)', rarity: 'A' },
+            { name: 'Seras Victoria', rarity: 'A' },
+            { name: 'Faye Valentine', rarity: 'A' },
+            { name: 'Motoko Kusanagi', rarity: 'A' },
+            { name: 'Kikyo (Inuyasha)', rarity: 'A' },
+            { name: 'Winry Rockbell', rarity: 'A' },
+            { name: 'Riza Hawkeye', rarity: 'A' },
+            { name: 'Hange Zoe', rarity: 'A' },
+            { name: 'Historia Reiss', rarity: 'A' },
+            { name: 'Annie Leonhart', rarity: 'A' },
+            { name: 'Sasha Blouse', rarity: 'A' },
+            { name: 'Kanao Tsuyuri', rarity: 'A' },
+            { name: 'Mitsuri Kanroji', rarity: 'A' },
+            { name: 'Yoruichi (Bleach)', rarity: 'A' },
+            { name: 'Rangiku Matsumoto', rarity: 'A' },
+            { name: 'Orihime Inoue', rarity: 'A' },
+            { name: 'Vivi Nefertari', rarity: 'A' },
+            { name: 'Yamato (One Piece)', rarity: 'A' },
+            { name: 'Chizuru Mizuhara', rarity: 'A' },
+            { name: 'Akane Kurokawa', rarity: 'A' },
+            { name: 'Ruby Hoshino', rarity: 'A' },
+            { name: 'Fiona Frost', rarity: 'A' },
+            { name: 'Reze (Chainsaw Man)', rarity: 'A' },
+            { name: 'Esdeath', rarity: 'A' },
+            { name: 'Shizuka Hiratsuka', rarity: 'A' },
+            { name: 'Miyuki Shiba', rarity: 'A' },
+            { name: 'Kotori Minami', rarity: 'A' },
+            { name: 'Nico Yazawa', rarity: 'A' },
+            { name: 'Maki Nishikino', rarity: 'A' },
+            { name: 'Eli Ayase', rarity: 'A' },
+            { name: 'Nozomi Tojo', rarity: 'A' },
+            { name: 'Honoka Kosaka', rarity: 'A' },
+            // ===== B — CONHECIDAS =====
+            { name: 'Umi Sonoda', rarity: 'B' },
+            { name: 'Rin Hoshizora', rarity: 'B' },
+            { name: 'Hanayo Koizumi', rarity: 'B' },
+            { name: 'Chiaki Nanami', rarity: 'B' },
+            { name: 'Kaede Akamatsu', rarity: 'B' },
+            { name: 'Mei Misaki', rarity: 'B' },
+            { name: 'Hana Uzaki', rarity: 'B' },
+            { name: 'Nana Komatsu', rarity: 'B' },
+            { name: 'Maka Albarn', rarity: 'B' },
+            { name: 'Teresa (Claymore)', rarity: 'B' },
+            { name: 'Clare (Claymore)', rarity: 'B' },
+            { name: 'Rena Ryuugu', rarity: 'B' },
+            { name: 'Kikoru Shinomiya', rarity: 'B' },
+            { name: 'Fern (Frieren)', rarity: 'B' },
+            { name: 'Arisa Uotani', rarity: 'B' },
+            { name: 'Sanae Dekomori', rarity: 'B' },
+            { name: 'Kasumi Toyama', rarity: 'B' },
+            { name: 'Diane (Seven Deadly Sins)', rarity: 'B' },
+            { name: 'Elizabeth Liones', rarity: 'B' },
+            { name: 'Leone (Akame ga Kill)', rarity: 'B' },
+            // ===== C — DE NICHO =====
+            { name: 'Nao Tomori', rarity: 'C' },
+            { name: 'Aoi Asahina', rarity: 'C' },
+            { name: 'Yuna Yuki', rarity: 'C' },
+            { name: 'Shiori Shiomiya', rarity: 'C' },
+            { name: 'Rika Furude', rarity: 'C' },
+            { name: 'Satoko Houjou', rarity: 'C' },
+            { name: 'Mion Sonozaki', rarity: 'C' },
+            { name: 'Shion Sonozaki', rarity: 'C' },
+            { name: 'Mikan Tsumiki', rarity: 'C' },
+            { name: 'Sora Kasugano', rarity: 'C' },
+            // ===== D — RARAS DE VER =====
+            { name: 'Akari Mizunashi', rarity: 'D' },
+            { name: 'Haruka Amami', rarity: 'D' },
+            { name: 'Deneve (Claymore)', rarity: 'D' },
+            { name: 'Helen (Claymore)', rarity: 'D' },
+            // ===== E / F — SÓ OS TRUE FÃS =====
+            { name: 'Mai Kawakami', rarity: 'E' },
+            { name: 'Sakura Matou', rarity: 'E' },
+            { name: 'Kokoro Tsurumaki', rarity: 'E' },
+            { name: 'Koharu Hidaka', rarity: 'F' },
+            { name: 'Yui Funami', rarity: 'F' },
+            { name: 'Akari Akaza', rarity: 'F' },
+            { name: 'Kumin Tsuyuri', rarity: 'F' },
+            { name: 'Chinatsu Yoshikawa', rarity: 'F' }
+        ];
+        characters.forEach(c => c.emoji = '🌸');
+
+        // ================================================================
+        //  3. ESTADO
+        // ================================================================
+        let gems = INITIAL_GEMS;
+        let history = [];
+        let inventory = {};
+        let isRolling = false;
+        let characterImages = {};
+        let nextRollOverride = null; // cheat: próxima carta garantida
+        let cheatCounts = {};        // cópias fantasmas do cheat (não salvam, não vendem)
+        characters.forEach(c => { inventory[c.name] = 0; });
+
+        // ================================================================
+        //  4. DOM
+        // ================================================================
+        const authScreen = document.getElementById('authScreen');
+        const loadingScreen = document.getElementById('loadingScreen');
+        const profileSetupScreen = document.getElementById('profileSetupScreen');
+        const gameScreen = document.getElementById('gameScreen');
+        const profileModal = document.getElementById('profileModal');
+        const imagePickerModal = document.getElementById('imagePickerModal');
+        const cheatModal = document.getElementById('cheatModal');
+
+        const gemDisplay = document.getElementById('gemDisplay');
+        const rollBtn = document.getElementById('rollBtn');
+        const diceElement = document.getElementById('dice');
+        const cardDisplay = document.getElementById('cardDisplay');
+        const historyList = document.getElementById('historyList');
+        const clearHistoryBtn = document.getElementById('clearHistory');
+        const inventoryGrid = document.getElementById('inventoryGrid');
+        const collectionGrid = document.getElementById('collectionGrid');
+        const invCountSpan = document.getElementById('invCount');
+        const colCountSpan = document.getElementById('colCount');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const bulkSellBtn = document.getElementById('bulkSellBtn');
+        const titleEasterEgg = document.getElementById('titleEasterEgg');
+
+        const customName = document.getElementById('customName');
+        const customRarity = document.getElementById('customRarity');
+        const customSearchBtn = document.getElementById('customSearchBtn');
+        const customImage = document.getElementById('customImage');
+        const customPlaceholder = document.getElementById('customPlaceholder');
+        const customRarityTag = document.getElementById('customRarityTag');
+        const customNameDisplay = document.getElementById('customNameDisplay');
+        const customRarityDisplay = document.getElementById('customRarityDisplay');
+        const alternativesBtn = document.getElementById('alternativesBtn');
+        const alternativesList = document.getElementById('alternativesList');
+
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = {
+            gacha: document.getElementById('tab-gacha'),
+            inventory: document.getElementById('tab-inventory'),
+            collection: document.getElementById('tab-collection'),
+            custom: document.getElementById('tab-custom')
+        };
+
+        // ================================================================
+        //  5. AUTH (só email)
+        // ================================================================
+        const authErrors = {
+            'Invalid login credentials': 'Email ou senha incorretos.',
+            'Email not confirmed': 'Verifique seu email antes de entrar.',
+            'User already registered': 'Este email já está cadastrado.',
+            'Invalid email address': 'Email inválido.',
+            'Password should be at least 6 characters': 'Senha muito curta.',
+            'Too many requests': 'Muitas tentativas. Aguarde um minuto.'
+        };
+
+        function showAuthMsg(texto, tipo, elementId = 'authMsg') {
+            const msg = document.getElementById(elementId);
+            msg.textContent = texto;
+            msg.className = 'auth-msg ' + tipo;
+            setTimeout(() => { msg.className = 'auth-msg'; }, 4000);
+        }
+
+        function showToast(message) {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        document.getElementById('tabLogin').addEventListener('click', () => {
+            document.getElementById('tabLogin').classList.add('active');
+            document.getElementById('tabCad').classList.remove('active');
+            document.getElementById('formLogin').classList.add('active');
+            document.getElementById('formCad').classList.remove('active');
+        });
+
+        document.getElementById('tabCad').addEventListener('click', () => {
+            document.getElementById('tabCad').classList.add('active');
+            document.getElementById('tabLogin').classList.remove('active');
+            document.getElementById('formCad').classList.add('active');
+            document.getElementById('formLogin').classList.remove('active');
+        });
+
+        document.getElementById('btnLogin').addEventListener('click', async () => {
+            const email = document.getElementById('loginEmail').value.trim();
+            const senha = document.getElementById('loginSenha').value;
+            const btn = document.getElementById('btnLogin');
+            btn.disabled = true;
+            btn.textContent = 'Entrando...';
+            const { error } = await supa.auth.signInWithPassword({ email, password: senha });
+            if (error) showAuthMsg(authErrors[error.message] || error.message, 'error');
+            btn.disabled = false;
+            btn.textContent = 'Entrar com Email';
+        });
+
+        document.getElementById('btnCad').addEventListener('click', async () => {
+            const email = document.getElementById('cadEmail').value.trim();
+            const senha = document.getElementById('cadSenha').value;
+            const btn = document.getElementById('btnCad');
+            btn.disabled = true;
+            btn.textContent = 'Criando...';
+            const { error } = await supa.auth.signUp({ email, password: senha });
+            if (error) {
+                showAuthMsg(authErrors[error.message] || error.message, 'error');
+            } else {
+                showAuthMsg('✅ Conta criada! Faça login.', 'success');
+            }
+            btn.disabled = false;
+            btn.textContent = 'Criar conta';
+        });
+
+        document.getElementById('linkRecuperar').addEventListener('click', async () => {
+            const email = document.getElementById('loginEmail').value.trim();
+            if (!email) return showAuthMsg('Digite seu email antes.', 'error');
+            const { error } = await supa.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
+            if (error) showAuthMsg(authErrors[error.message] || error.message, 'error');
+            else showAuthMsg('📧 Email enviado!', 'success');
+        });
+
+        // ================================================================
+        //  5.4 MODO GUEST (local, sem nuvem)
+        // ================================================================
+        document.getElementById('btnGuest').addEventListener('click', async () => {
+            isGuest = true;
+            userProfile = { nickname: 'Guest', avatar_url: null, avatar_char_name: null };
+            document.getElementById('loadingText').textContent = 'Carregando progresso local...';
+            loadingScreen.style.display = 'block';
+            authScreen.style.display = 'none';
+            await loadGuestSave();
+            enterGame();
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            if (isGuest) {
+                const limpar = confirm('🎮 Quer limpar o progresso local?\n(Se não limpar, ele estará aqui quando voltar)');
+                if (limpar) localStorage.removeItem(GUEST_SAVE_KEY);
+                isGuest = false;
+                userProfile = null;
+                currentUser = null;
+                gems = INITIAL_GEMS;
+                history = [];
+                inventory = {};
+                characterImages = {};
+                nextRollOverride = null;
+                cheatCounts = {};
+                characters.forEach(c => { inventory[c.name] = 0; });
+                renderHistory();
+                gameScreen.style.display = 'none';
+                loadingScreen.style.display = 'none';
+                profileSetupScreen.style.display = 'none';
+                authScreen.style.display = 'block';
+                return;
+            }
+            if (saveTimeout) {
+                clearTimeout(saveTimeout);
+                await saveGameCloud();
+            }
+            await supa.auth.signOut();
+        });
+
+        // ================================================================
+        //  5.5 RESET DE CONTA
+        // ================================================================
+        document.getElementById('resetBtn').addEventListener('click', async () => {
+            if (!(currentUser || isGuest)) return;
+            if (!confirm('⚠️ Isso vai APAGAR todo o seu progresso:\ncoleção, inventário, gemas, histórico e fotos escolhidas.\n\nContinuar?')) return;
+            if (!confirm('🚨 Tem CERTEZA? Não dá pra desfazer!')) return;
+
+            gems = INITIAL_GEMS;
+            history = [];
+            inventory = {};
+            characters.forEach(c => { inventory[c.name] = 0; });
+            characterImages = {};
+            nextRollOverride = null;
+            cheatCounts = {};
+            renderHistory();
+            cardDisplay.innerHTML = `<div class="card-placeholder">👆 Role o dado para começar</div>`;
+            updateUI();
+            await saveGameCloud();
+
+            if (!isGuest && confirm('🎭 Também resetar o PERFIL (nick e avatar)?')) {
+                await supa.from('user_profiles').delete().eq('user_id', currentUser.id);
+                userProfile = null;
+                gameScreen.style.display = 'none';
+                profileSetupScreen.style.display = 'block';
+                document.getElementById('setupNickname').value = '';
+            }
+
+            showToast('🔄 Conta resetada. Bom recomeço!');
+        });
+
+        // ================================================================
+        //  5.6 CHEAT CODE SECRETO (digite "cheat" em qualquer tela)
+        // ================================================================
+        let typedBuffer = '';
+        document.addEventListener('keydown', (e) => {
+            const tag = (e.target && e.target.tagName || '').toLowerCase();
+            if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+            if (e.key && e.key.length === 1) {
+                typedBuffer = (typedBuffer + e.key.toLowerCase()).slice(-10);
+                if (typedBuffer.endsWith('cheat')) {
+                    typedBuffer = '';
+                    openCheatModal();
+                }
+            }
+        });
+
+        function openCheatModal() {
+            document.getElementById('cheatName').value = '';
+            document.getElementById('cheatMsg').className = 'auth-msg';
+            cheatModal.classList.add('show');
+            setTimeout(() => document.getElementById('cheatName').focus(), 100);
+        }
+        function closeCheatModal() { cheatModal.classList.remove('show'); }
+
+        document.getElementById('closeCheat').addEventListener('click', closeCheatModal);
+        document.getElementById('cancelCheat').addEventListener('click', closeCheatModal);
+        cheatModal.addEventListener('click', e => { if (e.target === cheatModal) closeCheatModal(); });
+
+        document.getElementById('activateCheat').addEventListener('click', () => {
+            const input = normaliza(document.getElementById('cheatName').value.trim());
+            if (!input) return showAuthMsg('Digite um nome.', 'error', 'cheatMsg');
+            const match = characters.find(c => normaliza(c.name).includes(input));
+            if (!match) return showAuthMsg('❌ Personagem não encontrada na lista.', 'error', 'cheatMsg');
+            nextRollOverride = match.name;
+            closeCheatModal();
+            showToast(`🎯 Próxima carta: ${match.name}`);
+        });
+
+        // ================================================================
+        //  6. CRIAR PERFIL
+        // ================================================================
+        document.getElementById('btnCreateProfile').addEventListener('click', async () => {
+            if (isCreatingProfile) return;
+
+            const nickname = document.getElementById('setupNickname').value.trim();
+            const btn = document.getElementById('btnCreateProfile');
+
+            if (nickname.length < 3) return showAuthMsg('Nick deve ter pelo menos 3 caracteres', 'error', 'setupMsg');
+            if (nickname.length > 20) return showAuthMsg('Nick muito longo (máximo 20)', 'error', 'setupMsg');
+            if (!/^[a-zA-Z0-9_\-]+$/.test(nickname)) return showAuthMsg('Use apenas letras, números, _ e -', 'error', 'setupMsg');
+            if (!currentUser) return showAuthMsg('Usuário não autenticado. Recarregue.', 'error', 'setupMsg');
+
+            isCreatingProfile = true;
+            btn.disabled = true;
+            btn.textContent = 'Criando...';
+
+            try {
+                const { error } = await supa
+                    .from('user_profiles')
+                    .insert({
+                        user_id: currentUser.id,
+                        nickname: nickname,
+                        avatar_url: null,
+                        avatar_char_name: null
+                    });
+
+                if (error) {
+                    showAuthMsg('Erro: ' + error.message, 'error', 'setupMsg');
+                    btn.disabled = false;
+                    btn.textContent = 'Criar Perfil e Começar';
+                    isCreatingProfile = false;
+                    return;
+                }
+
+                userProfile = { nickname, avatar_url: null, avatar_char_name: null };
+                showAuthMsg('✅ Perfil criado!', 'success', 'setupMsg');
+                setTimeout(enterGame, 600);
+            } catch (e) {
+                showAuthMsg('Erro: ' + e.message, 'error', 'setupMsg');
+                btn.disabled = false;
+                btn.textContent = 'Criar Perfil e Começar';
+                isCreatingProfile = false;
+            }
+        });
+
+        // ================================================================
+        //  7. MODAL PERFIL
+        // ================================================================
+        document.getElementById('editProfileBtn').addEventListener('click', openProfileModal);
+        document.getElementById('closeModal').addEventListener('click', closeProfileModal);
+        document.getElementById('cancelEdit').addEventListener('click', closeProfileModal);
+        profileModal.addEventListener('click', (e) => {
+            if (e.target === profileModal) closeProfileModal();
+        });
+
+        function openProfileModal() {
+            if (isGuest) return showToast('❌ Edição de perfil indisponível no modo Guest');
+            document.getElementById('modalNickname').value = userProfile?.nickname || '';
+            tempSelectedAvatar = {
+                url: userProfile?.avatar_url || null,
+                char_name: userProfile?.avatar_char_name || null
+            };
+            renderModalAvatarPreview();
+            renderAvatarGrid();
+            profileModal.classList.add('show');
+        }
+
+        function closeProfileModal() {
+            profileModal.classList.remove('show');
+            tempSelectedAvatar = null;
+        }
+
+        function renderModalAvatarPreview() {
+            const container = document.getElementById('modalAvatarPreview');
+            if (tempSelectedAvatar && tempSelectedAvatar.url) {
+                container.innerHTML = `<img class="current-avatar-big" src="${tempSelectedAvatar.url}" alt="Avatar">`;
+            } else {
+                const initial = (userProfile?.nickname || '?').charAt(0).toUpperCase();
+                container.innerHTML = `<div class="current-avatar-placeholder-big">${initial}</div>`;
+            }
+        }
+
+        function renderAvatarGrid() {
+            const grid = document.getElementById('avatarGrid');
+            const countEl = document.getElementById('avatarCount');
+            const ownedChars = characters.filter(c => (inventory[c.name] || 0) > 0);
+            countEl.textContent = `(${ownedChars.length} disponíveis)`;
+
+            if (ownedChars.length === 0) {
+                grid.innerHTML = `<div class="avatar-empty-msg">Você ainda não tem personagens coletados!<br>Role o dado para desbloquear avatares.</div>`;
+                return;
+            }
+
+            const rarityOrder = ['SECRET', 'SSS', 'SS', 'S', 'A', 'B', 'C', 'D', 'E', 'F'];
+            ownedChars.sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity));
+
+            let html = '';
+            ownedChars.forEach(char => {
+                const imgUrl = characterImages[char.name];
+                const isSelected = tempSelectedAvatar && tempSelectedAvatar.char_name === char.name;
+                const imageHtml = imgUrl
+                    ? `<img src="${imgUrl}" alt="${char.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='block';"><span class="avatar-emoji" style="display:none;">🌸</span>`
+                    : `<span class="avatar-emoji">🌸</span>`;
+
+                html += `
+                    <div class="avatar-option ${isSelected ? 'selected' : ''}" data-name="${char.name}">
+                        ${imageHtml}
+                        <div class="avatar-name">${char.name}</div>
+                        <div class="avatar-rarity">Classe ${char.rarity}</div>
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+
+            grid.querySelectorAll('.avatar-option').forEach(el => {
+                el.addEventListener('click', () => {
+                    const charName = el.dataset.name;
+                    const imgUrl = characterImages[charName] || null;
+                    tempSelectedAvatar = { url: imgUrl, char_name: charName };
+                    grid.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('selected'));
+                    el.classList.add('selected');
+                    renderModalAvatarPreview();
+                });
+            });
+        }
+
+        document.getElementById('saveProfile').addEventListener('click', async () => {
+            const newNickname = document.getElementById('modalNickname').value.trim();
+            const btn = document.getElementById('saveProfile');
+
+            if (newNickname.length < 3) return showToast('❌ Nick muito curto');
+            if (newNickname.length > 20) return showToast('❌ Nick muito longo');
+            if (!/^[a-zA-Z0-9_\-]+$/.test(newNickname)) return showToast('❌ Caracteres inválidos');
+
+            btn.disabled = true;
+            btn.textContent = 'Salvando...';
+
+            const profileData = {
+                nickname: newNickname,
+                avatar_url: tempSelectedAvatar?.url || null,
+                avatar_char_name: tempSelectedAvatar?.char_name || null
+            };
+
+            const { error } = await supa
+                .from('user_profiles')
+                .upsert({ user_id: currentUser.id, ...profileData });
+
+            if (error) {
+                showToast('❌ Erro ao salvar');
+            } else {
+                userProfile = profileData;
+                updateUserPanel();
+                closeProfileModal();
+                showToast('✅ Perfil atualizado!');
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Salvar Alterações';
+        });
+
+        function updateUserPanel() {
+            document.getElementById('userNick').textContent = userProfile?.nickname || 'Sem nick';
+            document.getElementById('userEmail').textContent = isGuest ? '🎮 Modo Guest (não sincroniza)' : (currentUser ? currentUser.email : '');
+            const avatarContainer = document.getElementById('userAvatarContainer');
+            if (userProfile?.avatar_url) {
+                avatarContainer.innerHTML = `<img class="user-avatar" src="${userProfile.avatar_url}" alt="Avatar" onerror="this.outerHTML='<div class=\\'user-avatar-placeholder\\'>🎭</div>'">`;
+            } else {
+                const initial = (userProfile?.nickname || '?').charAt(0).toUpperCase();
+                avatarContainer.innerHTML = `<div class="user-avatar-placeholder">${initial}</div>`;
+            }
+        }
+
+        // ================================================================
+        //  8. SAVE NA NUVEM / LOCAL
+        // ================================================================
+        function setSaveStatus(status) {
+            const el = document.getElementById('saveStatus');
+            if (!el) return;
+            const modo = isGuest ? '💾' : '☁️';
+            const labels = {
+                'saving': isGuest ? `${modo} Salvando...` : `${modo} Salvando na nuvem...`,
+                'saved':  isGuest ? `${modo} Salvo localmente` : `${modo} Salvo na nuvem ✓`,
+                'error':  isGuest ? `${modo} Erro ao salvar` : `${modo} Erro ao salvar!`
+            };
+            el.textContent = labels[status] || '';
+            el.className = 'save-status ' + status;
+        }
+
+        function getSaveData() {
+            const cleanInventory = {};
+            for (const [name, qty] of Object.entries(inventory)) {
+                cleanInventory[name] = Math.max(0, qty - (cheatCounts[name] || 0));
+            }
+            return { gems, inventory: cleanInventory, history: history.map(i => ({ name: i.name, rarity: i.rarity })), characterImages };
+        }
+
+        function applySaveData(data) {
+            if (!data) return;
+            if (data.gems !== undefined) gems = data.gems;
+            if (data.inventory) {
+                characters.forEach(c => { if (data.inventory[c.name] === undefined) data.inventory[c.name] = 0; });
+                inventory = data.inventory;
+                for (const key of Object.keys(inventory)) {
+                    if (!characters.some(c => c.name === key)) delete inventory[key];
+                }
+            }
+            if (data.history) history = data.history.map(i => ({ name: i.name, rarity: i.rarity, emoji: '🌸' }));
+            if (data.characterImages) characterImages = data.characterImages;
+        }
+
+        async function loadGameCloud() {
+            const { data, error } = await supa.from('waifu_saves').select('save_data').eq('user_id', currentUser.id).maybeSingle();
+            if (error) { console.error(error); return false; }
+            if (data && data.save_data) { applySaveData(data.save_data); return true; }
+            await supa.from('waifu_saves').insert({ user_id: currentUser.id, save_data: { gems: INITIAL_GEMS, inventory: {}, history: [], characterImages: {} } });
+            return false;
+        }
+
+        async function saveGameCloud() {
+            if (isGuest) return saveGuestSave();
+            if (!currentUser) return;
+            setSaveStatus('saving');
+            const { error } = await supa.from('waifu_saves').upsert({
+                user_id: currentUser.id,
+                save_data: getSaveData(),
+                atualizado_em: new Date().toISOString()
+            });
+            setSaveStatus(error ? 'error' : 'saved');
+        }
+
+        async function loadGuestSave() {
+            try {
+                const raw = localStorage.getItem(GUEST_SAVE_KEY);
+                if (raw) applySaveData(JSON.parse(raw));
+            } catch (e) { console.warn('Save local corrompido, ignorado'); }
+        }
+
+        async function saveGuestSave() {
+            try {
+                localStorage.setItem(GUEST_SAVE_KEY, JSON.stringify(getSaveData()));
+                setSaveStatus('saved');
+            } catch (e) {
+                console.warn('Erro ao salvar local:', e);
+                setSaveStatus('error');
+            }
+        }
+
+        function scheduleSave() {
+            if (saveTimeout) clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(saveGameCloud, 1500);
+        }
+
+        // ================================================================
+        //  9. UI
+        // ================================================================
+        function updateUI() {
+            gemDisplay.textContent = Math.floor(gems);
+            rollBtn.disabled = isRolling || gems < COST_PER_ROLL;
+            updateInventoryUI();
+            updateCollectionUI();
+            updateInventoryCount();
+            updateCollectionCount();
+            updateProgress();
+            const hasLow = Object.entries(inventory).some(([name, qty]) => {
+                if (qty === 0 || (cheatCounts[name] || 0) > 0) return false;
+                const char = characters.find(c => c.name === name);
+                return char && ['F','E','D'].includes(char.rarity);
+            });
+            bulkSellBtn.disabled = !hasLow || isRolling;
+            scheduleSave();
+        }
+
+        function updateInventoryCount() { invCountSpan.textContent = `(${Object.values(inventory).reduce((a,b)=>a+b,0)})`; }
+        function updateCollectionCount() { colCountSpan.textContent = `(${Object.values(inventory).filter(q=>q>0).length}/${characters.length})`; }
+        function updateProgress() {
+            const owned = Object.values(inventory).filter(q => q > 0).length;
+            const pct = (owned / characters.length) * 100;
+            progressFill.style.width = pct + '%';
+            progressText.textContent = Math.round(pct) + '%';
+        }
+
+        // ================================================================
+        //  10. IMAGENS v4 - AniList + Jikan, validação, IDs e backfill
+        // ================================================================
+        const characterOverrides = {
+            'Artoria Pendragon (Saber)': 'Saber',
+            'Makise Kurisu': 'Kurisu Makise',
+            'Nana Osaki': 'Nana Oosaki',
+            'Yuna Yuki': 'Yuuna Yuuki'
+        };
+        const manualImages = {
+            // 'Nome Exato': 'https://url-direta.jpg',
+        };
+        const anilistIds = {
+            'Artoria Pendragon (Saber)': 497,
+            'Ram (Re:Zero)': 88576,
+            'Rem (Re:Zero)': 88575
+        };
+        const seriesHints = {
+            'Akari Akaza': 'Yuru Yuri', 'Yui Funami': 'Yuru Yuri',
+            'Chinatsu Yoshikawa': 'Yuru Yuri', 'Kumin Tsuyuri': 'Chuunibyou',
+            'Sanae Dekomori': 'Chuunibyou', 'Koharu Hidaka': 'Hi Score Girl',
+            'Kokoro Tsurumaki': 'BanG Dream', 'Kasumi Toyama': 'BanG Dream',
+            'Mai Kawakami': 'Phantom World', 'Sakura Matou': 'Fate/stay night',
+            'Akari Mizunashi': 'Aria', 'Haruka Amami': 'Idolmaster',
+            'Deneve (Claymore)': 'Claymore', 'Helen (Claymore)': 'Claymore',
+            'Clare (Claymore)': 'Claymore', 'Teresa (Claymore)': 'Claymore',
+            'Nao Tomori': 'Charlotte', 'Aoi Asahina': 'Danganronpa',
+            'Chiaki Nanami': 'Danganronpa', 'Kaede Akamatsu': 'Danganronpa',
+            'Mikan Tsumiki': 'Danganronpa', 'Yuna Yuki': 'Yuki Yuna',
+            'Shiori Shiomiya': 'World God Only Knows', 'Rika Furude': 'Higurashi',
+            'Satoko Houjou': 'Higurashi', 'Mion Sonozaki': 'Higurashi',
+            'Shion Sonozaki': 'Higurashi', 'Rena Ryuugu': 'Higurashi',
+            'Sora Kasugano': 'Yosuga no Sora', 'Mei Misaki': 'Another',
+            'Hana Uzaki': 'Uzaki', 'Nana Komatsu': 'NANA', 'Maka Albarn': 'Soul Eater',
+            'Arisa Uotani': 'Fruits Basket', 'Shizuka Hiratsuka': 'Yahari',
+            'Miyuki Shiba': 'Mahouka', 'Kotori Minami': 'Love Live',
+            'Nozomi Tojo': 'Love Live', 'Honoka Kosaka': 'Love Live',
+            'Umi Sonoda': 'Love Live', 'Rin Hoshizora': 'Love Live',
+            'Hanayo Koizumi': 'Love Live', 'Nico Yazawa': 'Love Live',
+            'Maki Nishikino': 'Love Live', 'Eli Ayase': 'Love Live',
+            'Fern (Frieren)': 'Frieren', 'Kikoru Shinomiya': 'Kaiju No. Eight',
+            'Mina Ashiro': 'Kaiju No. Eight', 'Sagiri Yamada Asaemon': 'Hell\'s Paradise',
+            'Noelle Silva': 'Black Clover', 'Diane (Seven Deadly Sins)': 'Seven Deadly Sins',
+            'Elizabeth Liones': 'Seven Deadly Sins', 'Leone (Akame ga Kill)': 'Akame ga Kill',
+            'Akame (Akame ga Kill)': 'Akame ga Kill',
+            'Hakari Hanazono': '100 Girlfriends', 'Karane Inda': '100 Girlfriends',
+            'Shizuka Yoshimoto': '100 Girlfriends', 'Nano Eiai': '100 Girlfriends',
+            'Kusuri Yakuzen': '100 Girlfriends', 'Hahari Hanazono': '100 Girlfriends',
+            'Kurumi Haraga': '100 Girlfriends', 'Mei Meido': '100 Girlfriends',
+            'Iku Sutō': '100 Girlfriends', 'Mimimi Utsukushisugi': '100 Girlfriends',
+            'Meme Kakure': '100 Girlfriends', 'Chiyo Iin': '100 Girlfriends',
+            'Yotsuba Nakano': 'Quintessential Quintuplets', 'Ichika Nakano': 'Quintessential Quintuplets',
+            'Itsuki Nakano': 'Quintessential Quintuplets'
+        };
+
+        function nomeParaBusca(n) {
+            if (characterOverrides[n]) return characterOverrides[n];
+            return n.replace(/\([^)]*\)/g, '').trim();
+        }
+        function normaliza(s) {
+            return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+        }
+        function nomeBate(busca, cheio) {
+            const a = normaliza(busca), b = normaliza(cheio);
+            if (!a || !b) return false;
+            if (a === b) return true;
+            const pa = a.split(' '), pb = b.split(' ');
+            if (pa.length === pb.length && pa.every(w => pb.includes(w))) return true;
+            if (b.includes(a) || a.includes(b)) return true;
+            return false;
+        }
+
+        let lastApiCall = 0;
+        async function apiFetch(url, options = null, retries = 2) {
+            for (let i = 0; i <= retries; i++) {
+                const espera = Math.max(0, lastApiCall + 900 - Date.now());
+                if (espera) await new Promise(r => setTimeout(r, espera));
+                lastApiCall = Date.now();
+                try {
+                    const res = await fetch(url, options);
+                    if (res.status === 429 || res.status >= 500) {
+                        await new Promise(r => setTimeout(r, 2000 * (i + 1)));
+                        continue;
+                    }
+                    return res.ok ? res : null;
+                } catch (e) { await new Promise(r => setTimeout(r, 1200)); }
+            }
+            return null;
+        }
+
+        async function fetchAniListImages(searchTerm, limite = 5, validar = false) {
+            try {
+                const query = `query ($search: String, $perPage: Int) {
+                    Page(page: 1, perPage: $perPage) {
+                        characters(search: $search, sort: FAVOURITES_DESC) {
+                            name { full }
+                            image { large medium }
+                        }
+                    }
+                }`;
+                const res = await apiFetch('https://graphql.anilist.co', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({ query, variables: { search: searchTerm, perPage: validar ? 20 : limite } })
+                });
+                if (!res) return [];
+                const json = await res.json();
+                let lista = (json?.data?.Page?.characters || [])
+                    .map(c => ({ name: c.name?.full || searchTerm, image: c.image?.large || c.image?.medium }))
+                    .filter(c => c.image);
+                if (validar) lista = lista.filter(r => nomeBate(searchTerm, r.name)).slice(0, limite);
+                return lista;
+            } catch (e) { return []; }
+        }
+
+        async function fetchJikanImages(searchTerm, limite = 5, validar = false) {
+            const res = await apiFetch(`https://api.jikan.moe/v4/characters?q=${encodeURIComponent(searchTerm)}&limit=20&order_by=favorites&sort=desc`);
+            if (!res) return [];
+            const data = await res.json();
+            if (!data?.data?.length) return [];
+            let lista = [...data.data].sort((a, b) => (b.favorites || 0) - (a.favorites || 0))
+                .map(i => ({ name: i.name, image: i.images?.jpg?.image_url }))
+                .filter(i => i.image);
+            if (validar) lista = lista.filter(r => nomeBate(searchTerm, r.name)).slice(0, limite);
+            return lista;
+        }
+
+        async function fetchAniListById(id) {
+            try {
+                const query = `query ($id: Int) { Character(id: $id) { name { full } image { large medium } } }`;
+                const res = await apiFetch('https://graphql.anilist.co', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({ query, variables: { id } })
+                });
+                if (!res) return null;
+                const c = (await res.json())?.data?.Character;
+                return c?.image?.large || c?.image?.medium || null;
+            } catch (e) { return null; }
+        }
+
+        async function fetchAniListViaMedia(characterSearch, mediaSearch) {
+            try {
+                const query = `query ($media: String) {
+                    Media(search: $media, type: ANIME) {
+                        characters(sort: FAVOURITES_DESC, perPage: 25) {
+                            name { full }
+                            image { large medium }
+                        }
+                    }
+                }`;
+                const res = await apiFetch('https://graphql.anilist.co', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({ query, variables: { media: mediaSearch } })
+                });
+                if (!res) return null;
+                const chars = (await res.json())?.data?.Media?.characters || [];
+                const lista = chars
+                    .map(c => ({ name: c.name?.full, image: c.image?.large || c.image?.medium }))
+                    .filter(c => c.image);
+                const match = lista.find(c => nomeBate(characterSearch, c.name));
+                return match ? match.image : null;
+            } catch (e) { return null; }
+        }
+
+        async function fetchJikanImage(characterName, returnAll = false) {
+            if (manualImages[characterName]) {
+                return returnAll ? [{ name: characterName, image: manualImages[characterName] }] : manualImages[characterName];
+            }
+            if (!returnAll && characterImages[characterName]) return characterImages[characterName];
+            const termo = nomeParaBusca(characterName);
+
+            if (returnAll) {
+                let todos = await fetchAniListImages(termo, 20, false);
+                if (!todos.length) todos = await fetchJikanImages(termo, 20, false);
+                const certos = todos.filter(r => nomeBate(termo, r.name));
+                const resto  = todos.filter(r => !nomeBate(termo, r.name));
+                const lista = [...certos, ...resto].slice(0, 8);
+                return lista.length ? lista : null;
+            }
+
+            if (anilistIds[characterName]) {
+                const url = await fetchAniListById(anilistIds[characterName]);
+                if (url) return url;
+            }
+            let resultados = await fetchAniListImages(termo, 1, true);
+            if (!resultados.length && seriesHints[characterName]) {
+                const url = await fetchAniListViaMedia(termo, seriesHints[characterName]);
+                if (url) return url;
+            }
+            if (!resultados.length) resultados = await fetchJikanImages(termo, 1, true);
+            if (!resultados.length) return null;
+            return resultados[0].image;
+        }
+
+        // ---- BACKFILL + limpeza única de cache antigo ----
+        if (localStorage.getItem('gw_img_ver') !== 'v4') {
+            localStorage.setItem('gw_img_ver', 'v4');
+            window.__resetImages = true;
+        }
+        let backfillRunning = false;
+        async function backfillMissingImages() {
+            if (backfillRunning || (!currentUser && !isGuest)) return;
+            if (window.__resetImages) { window.__resetImages = false; characterImages = {}; }
+            const faltando = characters.filter(c => (inventory[c.name] || 0) > 0 && !characterImages[c.name] && !manualImages[c.name]);
+            if (!faltando.length) return;
+            backfillRunning = true;
+            let mudou = false;
+            for (const char of faltando) {
+                const url = await fetchJikanImage(char.name);
+                if (url) { characterImages[char.name] = url; mudou = true; }
+            }
+            if (mudou) { updateInventoryUI(); updateCollectionUI(); scheduleSave(); }
+            backfillRunning = false;
+        }
+        setInterval(backfillMissingImages, 12000);
+
+        // ================================================================
+        //  11. CARTA (não trava o dado + timeout de 6s)
+        // ================================================================
+        let cardSeq = 0;
+
+        async function showCardWithJikan(character) {
+            const mySeq = ++cardSeq;
+            const rarityClass = `rarity-${character.rarity}`;
+            const rarityLabel = character.rarity;
+
+            cardDisplay.innerHTML = `
+                <div class="card ${rarityClass}">
+                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:220px;background:rgba(0,0,0,0.3);border-radius:20px;color:#8a8fa8;margin-bottom:10px;">
+                        <span style="font-size:2.5rem;animation:spin 1s linear infinite;">⏳</span>
+                        <span style="margin-top:10px;">Buscando...</span>
+                    </div>
+                    <span class="rarity-tag">Classe ${rarityLabel}</span>
+                    <div class="char-name">${character.name}</div>
+                    <div class="char-rarity">⭐ ${rarityLabel}</div>
+                </div>
+            `;
+            if (character.rarity === 'SS' || character.rarity === 'SSS' || character.rarity === 'SECRET') launchConfetti();
+            if (character.rarity === 'SECRET') launchConfetti();
+
+            let imageUrl = characterImages[character.name] || null;
+            if (!imageUrl) {
+                imageUrl = await Promise.race([
+                    (async () => {
+                        const u = await fetchJikanImage(character.name);
+                        if (u) characterImages[character.name] = u;
+                        return u;
+                    })(),
+                    new Promise(r => setTimeout(() => r(null), 6000))
+                ]);
+            }
+
+            if (mySeq !== cardSeq) return;
+
+            const imageHtml = imageUrl
+                ? `<img class="card-image" src="${imageUrl}" alt="${character.name}" onerror="this.style.display='none'">`
+                : `<div class="card-image" style="display:flex;align-items:center;justify-content:center;font-size:5rem;background:#10152a;border:none;min-height:180px;">🌸</div>`;
+            cardDisplay.innerHTML = `
+                <div class="card ${rarityClass}">
+                    ${imageHtml}
+                    <span class="rarity-tag">Classe ${rarityLabel}</span>
+                    <div class="char-name">${character.name}</div>
+                    <div class="char-rarity">⭐ ${rarityLabel}</div>
+                </div>
+            `;
+        }
+
+        function launchConfetti() {
+            const container = document.createElement('div');
+            container.className = 'confetti-container';
+            document.body.appendChild(container);
+            const colors = ['#f7e05e','#ff6b6b','#3b9eff','#c77dff','#ffb347','#00e5ff','#ff85a1'];
+            for (let i=0; i<80; i++) {
+                const el = document.createElement('div');
+                el.className = 'confetti';
+                el.style.left = Math.random()*100 + '%';
+                el.style.background = colors[Math.floor(Math.random()*colors.length)];
+                el.style.width = (Math.random()*8+4)+'px';
+                el.style.height = (Math.random()*8+4)+'px';
+                el.style.borderRadius = Math.random()>0.5 ? '50%' : '2px';
+                el.style.animationDuration = (Math.random()*2+1.5)+'s';
+                el.style.animationDelay = (Math.random()*0.8)+'s';
+                container.appendChild(el);
+            }
+            setTimeout(() => container.remove(), 3500);
+        }
+
+        // ================================================================
+        //  12. HISTÓRICO
+        // ================================================================
+        function addToHistory(character) {
+            history.unshift(character);
+            if (history.length > 20) history.pop();
+            renderHistory();
+        }
+        function renderHistory() {
+            if (history.length === 0) {
+                historyList.innerHTML = `<div class="history-empty">Nenhuma carta obtida ainda.</div>`;
+                return;
+            }
+            historyList.innerHTML = history.map(item => `
+                <div class="history-item rarity-${item.rarity}" style="border-left-color: var(--${item.rarity}-color, #4a5070);">
+                    <span class="h-emoji"></span>
+                    <span class="h-name">${item.name}</span>
+                    <span class="h-rarity">${item.rarity}</span>
+                </div>
+            `).join('');
+        }
+        function setDiceFace(n) {
+            const rotations = { 1:'rotateY(0deg)', 2:'rotateY(180deg)', 3:'rotateY(-90deg)', 4:'rotateY(90deg)', 5:'rotateX(90deg)', 6:'rotateX(-90deg)' };
+            diceElement.style.transform = rotations[n];
+        }
+
+        // ================================================================
+        //  13. INVENTÁRIO (ordenado SECRET→F) + COLEÇÃO (❓ nas bloqueadas)
+        // ================================================================
+        function updateInventoryUI() {
+            const RARITY_ORDER = ['SECRET','SSS','SS','S','A','B','C','D','E','F'];
+            const owned = Object.entries(inventory)
+                .map(([name, qty]) => ({ char: characters.find(c => c.name === name), qty }))
+                .filter(x => x.char && x.qty > 0);
+
+            if (!owned.length) { inventoryGrid.innerHTML = `<div class="empty-msg">Nenhum personagem no inventário.</div>`; return; }
+
+            owned.sort((a, b) => {
+                const d = RARITY_ORDER.indexOf(a.char.rarity) - RARITY_ORDER.indexOf(b.char.rarity);
+                return d !== 0 ? d : a.char.name.localeCompare(b.char.name);
+            });
+
+            let html = '';
+            for (const { char, qty } of owned) {
+                const price = SELL_PRICES[char.rarity] || 0;
+                const locked = (cheatCounts[char.name] || 0) > 0;
+                const imgUrl = characterImages[char.name];
+                const imageHtml = imgUrl ? `<img class="inv-image" src="${imgUrl}" alt="${char.name}" onerror="this.style.display='none'">` : `<span class="inv-emoji">🌸</span>`;
+                html += `
+                    <div class="inv-item rarity-${char.rarity}">
+                        ${imageHtml}
+                        <div class="inv-name">${char.name}</div>
+                        <div class="inv-rarity">Classe ${char.rarity}</div>
+                        <div class="inv-qty">x${qty}</div>
+                        <button class="img-btn" data-name="${char.name}">🖼️ Trocar foto</button>
+                        ${locked
+                            ? `<button class="sell-btn" disabled>🔒 Cheat (não vendável)</button>`
+                            : `<button class="sell-btn" data-name="${char.name}" data-price="${price}">Vender por ${price} 💎</button>`}
+                    </div>
+                `;
+            }
+            inventoryGrid.innerHTML = html;
+            document.querySelectorAll('.sell-btn').forEach(btn => {
+                btn.addEventListener('click', () => sellCharacter(btn.dataset.name, parseInt(btn.dataset.price)));
+            });
+            document.querySelectorAll('.img-btn').forEach(btn => {
+                btn.addEventListener('click', () => openImagePicker(btn.dataset.name));
+            });
+        }
+
+        function updateCollectionUI() {
+            let html = '';
+            let ownedCount = 0;
+            for (const char of characters) {
+                const qty = inventory[char.name] || 0;
+                if (qty > 0) ownedCount++;
+                const ownedClass = qty > 0 ? '' : 'zero';
+                let imageHtml;
+                if (qty > 0) {
+                    const imgUrl = characterImages[char.name];
+                    imageHtml = imgUrl ? `<img class="col-image" src="${imgUrl}" alt="${char.name}" onerror="this.style.display='none'">` : `<span class="col-emoji">🌸</span>`;
+                } else {
+                    imageHtml = `<span class="col-emoji" style="filter:grayscale(1);opacity:.45;">❓</span>`;
+                }
+                html += `
+                    <div class="col-item rarity-${char.rarity}">
+                        ${imageHtml}
+                        <div class="col-name">${char.name}</div>
+                        <div class="col-rarity">Classe ${char.rarity}</div>
+                        <div class="col-owned ${ownedClass}">${qty > 0 ? `✔️ ${qty}` : '❌ 0'}</div>
+                    </div>
+                `;
+            }
+            collectionGrid.innerHTML = html;
+            document.getElementById('colCount').textContent = `(${ownedCount}/${characters.length})`;
+        }
+
+        function sellCharacter(name, price) {
+            if (inventory[name] <= 0) return alert('Você não possui este personagem.');
+            if ((cheatCounts[name] || 0) > 0) return alert('🔒 Personagens obtidos via cheat não podem ser vendidos!');
+            if (confirm(`Vender ${name} por ${price} 💎?`)) {
+                inventory[name]--;
+                gems += price;
+                updateUI();
+            }
+        }
+
+        function bulkSell() {
+            let totalGems = 0, soldCount = 0;
+            const toSell = ['F','E','D'];
+            for (const [name, qty] of Object.entries(inventory)) {
+                if (qty === 0) continue;
+                const char = characters.find(c => c.name === name);
+                if (char && toSell.includes(char.rarity) && !((cheatCounts[name] || 0) > 0)) {
+                    totalGems += qty * (SELL_PRICES[char.rarity] || 0);
+                    soldCount += qty;
+                    inventory[name] = 0;
+                }
+            }
+            if (soldCount === 0) return alert('Nenhum F/E/D para vender.');
+            if (confirm(`Vender ${soldCount} personagens por ${totalGems} 💎?`)) {
+                gems += totalGems;
+                updateUI();
+                showToast(`Vendeu ${soldCount} por ${totalGems} 💎`);
+            }
+        }
+
+        // ================================================================
+        //  14. ROLAGEM (dado não trava + cheat de carta garantida)
+        // ================================================================
+        async function rollDice() {
+            if (isRolling) return;
+            if (gems < COST_PER_ROLL) return alert('💎 Gemas insuficientes!');
+            gems -= COST_PER_ROLL;
+            isRolling = true;
+            rollBtn.disabled = true;
+            const diceResult = Math.floor(Math.random() * 6) + 1;
+
+            let character, cheatRoll = false;
+            if (nextRollOverride) {
+                const wanted = characters.find(c => c.name === nextRollOverride);
+                nextRollOverride = null;
+                if (wanted) { character = wanted; cheatRoll = true; }
+                else character = drawCharacter();
+            } else {
+                character = drawCharacter();
+            }
+
+            diceElement.classList.remove('rolling');
+            void diceElement.offsetWidth;
+            diceElement.classList.add('rolling');
+            setTimeout(() => {
+                setDiceFace(diceResult);
+                const wasOwned = (inventory[character.name] || 0) > 0;
+                inventory[character.name] = (inventory[character.name] || 0) + 1;
+                if (cheatRoll) cheatCounts[character.name] = (cheatCounts[character.name] || 0) + 1;
+                addToHistory(character);
+                isRolling = false;
+                updateUI();
+                diceElement.classList.remove('rolling');
+                showCardWithJikan(character);
+                if (!wasOwned) showToast(`✨ Nova: ${character.name}! (novo avatar)`);
+            }, 1200);
+        }
+
+        function drawCharacter() {
+            const rand = Math.random() * 100;
+            let acc = 0, chosenRarity = 'F';
+            for (const [rarity, chance] of Object.entries(RARITY_CHANCES)) {
+                acc += chance;
+                if (rand <= acc) { chosenRarity = rarity; break; }
+            }
+            const pool = characters.filter(c => c.rarity === chosenRarity);
+            return pool[Math.floor(Math.random() * pool.length)];
+        }
+
+        // ================================================================
+        //  15. PERSONALIZADO
+        // ================================================================
+        customSearchBtn.addEventListener('click', async () => {
+            const name = customName.value.trim();
+            if (!name) return alert('Digite um nome.');
+            customSearchBtn.disabled = true;
+            customSearchBtn.textContent = '⏳ Buscando...';
+            try {
+                const results = await fetchJikanImage(name, true);
+                if (results && results.length > 0) {
+                    customImage.src = results[0].image;
+                    customImage.style.display = 'block';
+                    customPlaceholder.style.display = 'none';
+                    const rarity = customRarity.value;
+                    customRarityTag.textContent = `Classe ${rarity}`;
+                    customNameDisplay.textContent = name;
+                    customRarityDisplay.textContent = `⭐ ${rarity}`;
+                    document.getElementById('customResult').className = 'custom-result show';
+                    const card = document.getElementById('customCard');
+                    card.className = 'card rarity-' + rarity;
+                    if (results.length > 1) {
+                        alternativesBtn.style.display = 'inline-block';
+                        alternativesList.innerHTML = '';
+                        results.forEach(item => {
+                            const div = document.createElement('div');
+                            div.className = 'alt-item';
+                            div.innerHTML = `<img src="${item.image}" onerror="this.style.display='none'"><span>${item.name}</span>`;
+                            div.addEventListener('click', () => {
+                                customImage.src = item.image;
+                                customNameDisplay.textContent = item.name;
+                                alternativesList.classList.remove('show');
+                                alternativesBtn.textContent = '🔄 Não é este?';
+                            });
+                            alternativesList.appendChild(div);
+                        });
+                    } else {
+                        alternativesBtn.style.display = 'none';
+                    }
+                } else {
+                    customImage.style.display = 'none';
+                    customPlaceholder.style.display = 'flex';
+                    customPlaceholder.textContent = '❌ Não encontrado';
+                }
+            } catch (e) { alert('Erro ao buscar.'); }
+            finally {
+                customSearchBtn.disabled = false;
+                customSearchBtn.textContent = ' Buscar';
+            }
+        });
+
+        alternativesBtn.addEventListener('click', () => {
+            if (alternativesList.classList.contains('show')) {
+                alternativesList.classList.remove('show');
+                alternativesBtn.textContent = '🔄 Não é este?';
+            } else {
+                alternativesList.classList.add('show');
+                alternativesBtn.textContent = '🔼 Fechar';
+            }
+        });
+
+        // ================================================================
+        //  15.5 TROCAR IMAGEM DE PERSONAGEM (salva na nuvem/local)
+        // ================================================================
+        let imagePickerTarget = null;
+
+        function openImagePicker(charName) {
+            imagePickerTarget = charName;
+            document.getElementById('imagePickerName').textContent = charName;
+            document.getElementById('imagePickerUrl').value = '';
+            const grid = document.getElementById('imagePickerGrid');
+            grid.innerHTML = '<div class="avatar-empty-msg">⏳ Buscando alternativas...</div>';
+            imagePickerModal.classList.add('show');
+            (async () => {
+                let results = (await fetchJikanImage(charName, true)) || [];
+                if (anilistIds[charName]) {
+                    const url = await fetchAniListById(anilistIds[charName]);
+                    if (url) results = [{ name: nomeParaBusca(charName) + ' (oficial)', image: url }, ...results.filter(r => r.image !== url)];
+                }
+                if (!results.length) {
+                    grid.innerHTML = '<div class="avatar-empty-msg">Nenhuma alternativa encontrada.<br>Cole uma URL abaixo. 👇</div>';
+                    return;
+                }
+                grid.innerHTML = results.map((r, i) => `
+                    <div class="avatar-option" data-idx="${i}">
+                        <img src="${r.image}" alt="${r.name}" onerror="this.style.display='none'">
+                        <div class="avatar-name">${r.name}</div>
+                    </div>
+                `).join('');
+                grid.querySelectorAll('.avatar-option').forEach(el => {
+                    el.addEventListener('click', () => {
+                        const r = results[parseInt(el.dataset.idx)];
+                        applyCustomImage(imagePickerTarget, r.image);
+                    });
+                });
+            })();
+        }
+
+        function applyCustomImage(charName, url) {
+            characterImages[charName] = url;
+            updateInventoryUI();
+            updateCollectionUI();
+            scheduleSave();
+            closeImagePicker();
+            showToast('✅ Imagem de ' + charName + ' atualizada!');
+        }
+
+        function closeImagePicker() {
+            imagePickerModal.classList.remove('show');
+            imagePickerTarget = null;
+        }
+
+        document.getElementById('closeImagePicker').addEventListener('click', closeImagePicker);
+        document.getElementById('cancelImagePicker').addEventListener('click', closeImagePicker);
+        imagePickerModal.addEventListener('click', e => { if (e.target === imagePickerModal) closeImagePicker(); });
+        document.getElementById('imagePickerUseUrl').addEventListener('click', () => {
+            const url = document.getElementById('imagePickerUrl').value.trim();
+            if (!imagePickerTarget) return;
+            if (!/^https?:\/\//i.test(url)) return showToast('❌ URL inválida (use http/https)');
+            applyCustomImage(imagePickerTarget, url);
+        });
+
+        // ================================================================
+        //  16. EASTER EGG
+        // ================================================================
+        let lastEasterEggTime = 0;
+        titleEasterEgg.addEventListener('dblclick', () => {
+            const now = Date.now();
+            if (now - lastEasterEggTime < 90000) {
+                showToast(`⏳ Aguarde ${Math.ceil((90000 - (now - lastEasterEggTime))/1000)}s`);
+                return;
+            }
+            gems += 100;
+            lastEasterEggTime = now;
+            updateUI();
+            showToast('🎉 +100 💎 (Easter Egg!)');
+        });
+
+        // ================================================================
+        //  17. ENTRAR NO JOGO
+        // ================================================================
+        function enterGame() {
+            authScreen.style.display = 'none';
+            loadingScreen.style.display = 'none';
+            profileSetupScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+            updateUserPanel();
+            updateUI();
+            if (history.length > 0) showCardWithJikan(history[0]);
+            else cardDisplay.innerHTML = `<div class="card-placeholder">👆 Role o dado para começar</div>`;
+            setDiceFace(1);
+            showToast(`Bem-vindo, ${userProfile?.nickname}!`);
+        }
+
+        // ================================================================
+        //  18. AUTH STATE
+        // ================================================================
+        supa.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+                isGuest = false;
+                currentUser = session.user;
+                authScreen.style.display = 'none';
+                loadingScreen.style.display = 'block';
+                gameScreen.style.display = 'none';
+                profileSetupScreen.style.display = 'none';
+                document.getElementById('loadingText').textContent = 'Carregando perfil...';
+
+                await new Promise(r => setTimeout(r, 300));
+
+                const { data: profile, error: profileError } = await supa
+                    .from('user_profiles')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .maybeSingle();
+
+                if (profileError) {
+                    console.error(profileError);
+                    document.getElementById('loadingText').textContent = 'Erro ao carregar perfil';
+                    return;
+                }
+
+                if (!profile) {
+                    loadingScreen.style.display = 'none';
+                    profileSetupScreen.style.display = 'block';
+                    setTimeout(() => document.getElementById('setupNickname').focus(), 100);
+                    return;
+                }
+
+                userProfile = profile;
+                document.getElementById('loadingText').textContent = 'Carregando coleção...';
+                await loadGameCloud();
+                enterGame();
+            } else if (event === 'SIGNED_OUT') {
+                currentUser = null;
+                userProfile = null;
+                isCreatingProfile = false;
+                authScreen.style.display = 'block';
+                gameScreen.style.display = 'none';
+                loadingScreen.style.display = 'none';
+                profileSetupScreen.style.display = 'none';
+                document.getElementById('loginEmail').value = '';
+                document.getElementById('loginSenha').value = '';
+                document.getElementById('setupNickname').value = '';
+                document.getElementById('setupMsg').className = 'auth-msg';
+                document.getElementById('btnCreateProfile').disabled = false;
+                document.getElementById('btnCreateProfile').textContent = 'Criar Perfil e Começar';
+                gems = INITIAL_GEMS;
+                history = [];
+                inventory = {};
+                characterImages = {};
+                nextRollOverride = null;
+                cheatCounts = {};
+                characters.forEach(c => { inventory[c.name] = 0; });
+            }
+        });
+
+        // ================================================================
+        //  19. INIT
+        // ================================================================
+        setInterval(() => {
+            if (currentUser || isGuest) {
+                gems += GEM_RATE;
+                gemDisplay.textContent = Math.floor(gems);
+                rollBtn.disabled = isRolling || gems < COST_PER_ROLL;
+            }
+        }, 1000);
+
+        rollBtn.addEventListener('click', rollDice);
+        clearHistoryBtn.addEventListener('click', () => { history = []; renderHistory(); updateUI(); });
+        bulkSellBtn.addEventListener('click', bulkSell);
+
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const tabName = btn.dataset.tab;
+                Object.keys(tabContents).forEach(key => tabContents[key].classList.toggle('active', key === tabName));
+                if (tabName === 'inventory') updateInventoryUI();
+                if (tabName === 'collection') { updateCollectionUI(); updateProgress(); }
+            });
+        });
+
+        window.addEventListener('beforeunload', () => {
+            if ((currentUser || isGuest) && saveTimeout) {
+                clearTimeout(saveTimeout);
+                saveGameCloud();
+            }
+        });
+
+        const style = document.createElement('style');
+        style.textContent = `
+            .rarity-F { --F-color: #8a8fa8; border-left-color: #8a8fa8; }
+            .rarity-E { --E-color: #6ab04c; border-left-color: #6ab04c; }
+            .rarity-D { --D-color: #4a9eff; border-left-color: #4a9eff; }
+            .rarity-C { --C-color: #3d7ed9; border-left-color: #3d7ed9; }
+            .rarity-B { --B-color: #9b59b6; border-left-color: #9b59b6; }
+            .rarity-A { --A-color: #e67e22; border-left-color: #e67e22; }
+            .rarity-S { --S-color: #f1c40f; border-left-color: #f1c40f; }
+            .rarity-SS { --SS-color: #e74c3c; border-left-color: #e74c3c; }
+            .rarity-SSS { --SSS-color: #ff6b6b; border-left-color: #ff6b6b; }
+            .rarity-SECRET { --SECRET-color: #00ffcc; border-left-color: #00ffcc; }
+        `;
+        document.head.appendChild(style);
+        // ================================================================
+        //  20. SCROLL FIX (para itch.io e iframes)
+        // ================================================================
+        // Previne que elementos com scroll interno "prendam" o scroll do body
+        document.addEventListener('wheel', (e) => {
+            const target = e.target.closest('.inventory-grid, .collection-grid, .history, .avatar-grid, .alternatives-list, .modal');
+            if (target) {
+                const { scrollTop, scrollHeight, clientHeight } = target;
+                const atTop = scrollTop === 0 && e.deltaY < 0;
+                const atBottom = scrollTop + clientHeight >= scrollHeight && e.deltaY > 0;
+                if (atTop || atBottom) {
+                    e.preventDefault();
+                    window.scrollBy(0, e.deltaY);
+                }
+            } else {
+                // Fora de elementos com scroll interno, scrolla o body normalmente
+                e.preventDefault();
+                window.scrollBy(0, e.deltaY);
+            }
+        }, { passive: false });
+
+        // Garante que html e body permitam scroll
+        document.documentElement.style.overflowY = 'auto';
+        document.body.style.overflowY = 'auto';
+
+        console.log('🎲 Gacha Waifu com login carregado!');
+    </script>
+
+</body>
+</html>
